@@ -1,28 +1,41 @@
+import numpy as np
+import random as rand
 
 
 def main():
-    raw_moods = []
-    raw_genres = []
+    eps = 0.01
 
-    with open('./data/ron.txt', 'r') as f:  # read in Ron's data
-        for line in f.readlines():
-            mood, genre = line.strip().split('\t')
-            raw_moods.append(mood)
-            raw_genres.append(genre)
+    A = np.zeros((num_states, num_states))
 
-    # maps moods to numbers
-    moods = {'happy': 0, 'mellow': 1, 'sad': 2, 'angry': 3}
+    # randomly initialize A matrix
+    for i in range(num_states)
+        for j in range(num_states)
+            A[i][j] = rand.random()
+        # make each row sum to 1
+        A[i][:] = A[i][:] / np.sum(A[i][:])
 
-    # list of music genres
-    # maps genres to numbers
-    genres = {'rock': 0, 'pop': 1, 'house': 2, 'metal': 3, 'folk': 4,
-              'blues': 5, 'dubstep': 6, 'jazz': 7, 'rap': 8, 'classical': 9}
+    O = np.zeros((num_states, num_obs))
 
-    # numerical data of Ron's moods and music genres
-    state_seq = [moods[x] for x in raw_moods]
-    obs_seq = [genres[x] for x in raw_genres]
+    # randomly initialize O matrix
+    for i in range(num_states)
+        for j in range(num_obs)
+            O[i][j] = rand.random()
+        # make each row sum to 1
+        O[i][:] = O[i][:] / np.sum(O[i][:])
 
-    A, O = MStep(moods, genres, state_seq, obs_seq)
+    gamma, xi = eStep(num_states, obs_seq, A, O)
+    A_, O_ = mStep(gamma, xi, obs_seq, num_obs)
+
+    diff = np.sum(np.abs(A - A_))
+    prev_diff = diff
+    prev_A = A_
+
+    while diff/prev_diff > eps
+        prev_diff = diff
+        gamma, xi = eStep(num_states, obs_seq, A, O)
+        A, O = mStep(gamma, xi, obs_seq, num_obs)
+        diff = np.sum(np.abs(prev_A - A))
+
 
     A_str = latex_matrix(A)
     O_str = latex_matrix(O)
@@ -43,47 +56,69 @@ def latex_matrix(matrix):
 
 # Uses a single Maximization step to compute A (state-transition) and
 # O (observation) matrices. See Lecture 6 Slide 65.
-def MStep(pos_states, pos_observations, state_seq, obs_seq):
+def mStep(gamma, xi, obs, num_obs):
 
-    A = [[1. / len(pos_states) for i in pos_states] for j in pos_states]
-    O = [[1. / len(pos_observations) for i in pos_observations]
-         for j in pos_states]
+	A = [[0. for i in num_states] for j in num_states]
+    O = [[0. for i in num_states] for j in num_obs]
 
-    # create transition matrix
-    for prev_state in pos_states:
-        for state in pos_states:
-            num = 0.0
-            den = 0.0
-            for j in range(len(state_seq) - 1):
-                if (state_seq[j] == pos_states[prev_state]):
-                    den += 1
-                    if state_seq[j + 1] == pos_states[state]:
-                        num += 1
-            A[pos_states[state]][pos_states[prev_state]] = num / \
-                den if den != 0 else 0
+    for i in range(num_states)
+        for j in range(num_states)
+            A[i][j] = np.sum(xi[:][:end-1][i][j]) / np.sum(gamma[:][:end-1][i])
 
-    # create observation matrix
-    for state in pos_states:
-        for obs in pos_observations:
-            num = 0.0
-            den = 0.0
-            num = sum([int(obs_seq[j] == pos_observations[obs]) and
-                       int(state_seq[j] == pos_states[state]) for j in range(len(state_seq))])
-            den = sum([int(state_seq[j] == pos_states[state])
-                       for j in range(len(state_seq))])
-
-            O[pos_states[state]][pos_observations[obs]] = float(num) / den
+        for j in range(num_obs)
+            for o in range(len(obs))
+                for t in range(obs_len)
+                    if obs[o][t] == j
+                        O[i][j] += gamma[o][t][i]
+            O[i][j] /= np.sum(gamma[:][:][i]) 
 
     return A, O
 
-def eStep(A, O, num_states, obs_seq):
+def eStep(num_states, obs_seq, A, O):
 
-def Forward(num_states, obs, A, O):
+	# probability of being in state i at time t given the observed sequence
+    # and parameters
+    gamma = [[[0. for i in range(num_states)] for j in range(obs_len)] for k in range(len(obs_seq))]
+
+    # probability of being in state i and j at time t
+    xi = [[[[0. for i in range(num_states)] for j in range(num_states)] for k in range(obs_len)] for l in range(len(obs_seq))]
+
+	for obs_num in len(obs_seq)
+	    obs = obs_seq[obs_num]
+
+		alpha = forward(num_states, obs, A, O)
+		beta = backward(num_states, obs, A, O)
+		
+
+		# now we compute the marginals
+		obs_len = len(obs)
+	    num_states = len(alpha[0])
+
+
+	    for length in range(obs_len)
+
+	        den = np.sum(alpha[length] * beta[length])
+	        for state in range(num_states)
+	            gamma[obs_num][length][state] = alpha[length][state] * beta[length][state] / den
+
+
+
+	    den = np.sum(alpha[end][:])
+	    for t in range(obs_len)
+		    for i in range(num_states)
+		        for j in range(num_states)
+		            xi[obs_num][t][i][j] = alpha[t][i] * A[i][j] * beta[t+1][j] * O[j][obs[t+1]] / den
+
+	return gamma, xi
+
+
+
+def forward(num_states, obs, A, O):
     """Computes the probability a given HMM emits a given observation using the
         forward algorithm. This uses a dynamic programming approach, and uses
         the 'prob' matrix to store the probability of the sequence at each length.
         Arguments: num_states the number of states
-                   obs \       an array of observations
+                   obs        an array of observations
                    A          the transition matrix
                    O          the observation matrix
         Returns the probability of the observed sequence 'obs'
@@ -118,7 +153,7 @@ def Forward(num_states, obs, A, O):
     # return total probability
     return prob
 
-def Backward(num_states, obs, A, O):
+def backward(num_states, obs, A, O):
     len_ = len(obs)                   # number of observations
     # stores p(seqence)
     prob = [[[1] for i in range(num_states)] for i in range(len_)]
@@ -134,7 +169,7 @@ def Backward(num_states, obs, A, O):
             # We iterate through all possible previous states, and update
             # p_trans accordingly.
             for prev_state in range(num_states):
-                p_trans += prob[length + 1][prev_state] * A[prev_state][state] * O[obs[length + 1]][prev_state]
+                p_trans += prob[length + 1][prev_state] * A[prev_state][state] * O[prev_state][obs[length + 1]]
 
             prob[length][state] = p_trans  # update probability
 
