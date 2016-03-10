@@ -24,7 +24,7 @@ def parse(filename):
 			else:
 				corpus.append(poem)
 			poem = []
-		else:
+		elif len(line.split()) != 0:
 			poem.append(line)
 	return corpus
 

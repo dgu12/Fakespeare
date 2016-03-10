@@ -4,9 +4,10 @@ from shakespeare import parse, parseTok
 
 
 def main():
-    eps = 0.01
+    eps = 0.001
     token_vals, obs_seq = parseTok('shakespeare.txt', 'spenser.txt')
-    num_obs = len(obs_seq)
+
+    num_obs = len(token_vals)
     num_states = 7
     A = np.zeros((num_states, num_states))
 
@@ -26,18 +27,27 @@ def main():
         # make each row sum to 1
         O[i][:] = O[i][:] / np.sum(O[i][:])
 
-    gamma, xi = eStep(num_states, obs_seq, A, O)
-    A_, O_ = mStep(gamma, xi, obs_seq, num_obs)
+    prev_A = A
+    prev_O = O
 
-    diff = np.sum(np.abs(A - A_))
-    prev_diff = diff
-    prev_A = A_
+    gamma, xi = eStep(num_states, obs_seq, A, O)
+    A, O = mStep(num_states, gamma, xi, obs_seq, num_obs)
+
+    diff = np.linalg.norm(np.subtract(prev_A, A)) + np.linalg.norm(np.subtract(prev_O, O))
+
+    print 'diff is ', diff
+    print 'diff/prev_diff is', diff/prev_diff
 
     while diff/prev_diff > eps:
+        prev_A = A
+        prev_O = O
         prev_diff = diff
         gamma, xi = eStep(num_states, obs_seq, A, O)
-        A, O = mStep(gamma, xi, obs_seq, num_obs)
-        diff = np.sum(np.abs(prev_A - A))
+        A, O = mStep(num_states, gamma, xi, obs_seq, num_obs)
+        diff = np.linalg.norm(np.subtract(prev_A, A)) + np.linalg.norm(np.subtract(prev_O, O))
+
+        print 'diff is ', diff
+        print 'diff/prev_diff is', diff/prev_diff
 
 
     A_str = latex_matrix(A)
@@ -53,23 +63,24 @@ def latex_matrix(matrix):
         for j in range(len(matrix[0])):
             matrix_str += str("{0:.3f}".format(matrix[i][j])) + ' & '
         matrix_str = matrix_str[:-2] + '\\\\\n'
-    matrix_str += '\\end{bmatrix} \n'
+    matrix_str += '\\-1{bmatrix} \n'
     return matrix_str
 
 
 # Uses a single Maximization step to compute A (state-transition) and
 # O (observation) matrices. See Lecture 6 Slide 65.
-def mStep(gamma, xi, obs, num_obs):
-    A = [[0. for i in num_states] for j in num_states]
-    O = [[0. for i in num_states] for j in num_obs]
+def mStep(num_states, gamma, xi, obs, num_obs):
+
+    A = np.zeros([num_states, num_states])
+    O = np.zeros([num_states, num_obs])
 
     for i in range(num_states):
         for j in range(num_states):
-            A[i][j] = np.sum(xi[:][:end-1][i][j]) / np.sum(gamma[:][:end-1][i])
+            A[i][j] = np.sum(xi[:][:-1-1][i][j]) / np.sum(gamma[:][:-2][i])
 
         for j in range(num_obs):
             for o in range(len(obs)):
-                for t in range(obs_len):
+                for t in range(len(obs[o])):
                     if obs[o][t] == j:
                         O[i][j] += gamma[o][t][i]
             O[i][j] /= np.sum(gamma[:][:][i]) 
@@ -79,12 +90,11 @@ def mStep(gamma, xi, obs, num_obs):
 def eStep(num_states, obs_seq, A, O):
     # probability of being in state i at time t given the observed sequence
     # and parameters
-    obs_len = len(obs_seq)
-    gamma = [[[0. for i in range(num_states)] for j in range(obs_len)] for k in range(len(obs_seq))]
-
+    gamma = np.zeros([len(obs_seq), max(len(obs) for obs in obs_seq), num_states]) 
+    
     # probability of being in state i and j at time t
-    xi = [[[[0. for i in range(num_states)] for j in range(num_states)] for k in range(obs_len)] for l in range(len(obs_seq))]
-
+    xi = np.zeros([len(obs_seq), max(len(obs) for obs in obs_seq), num_states, num_states])
+ 
     for obs_num in range(len(obs_seq)):
         obs = obs_seq[obs_num]
 
@@ -94,19 +104,17 @@ def eStep(num_states, obs_seq, A, O):
 
         # now we compute the marginals
         obs_len = len(obs)
-        num_states = len(alpha[0])
-
 
         for length in range(obs_len):
 
-            den = np.sum(alpha[length] * beta[length])
+            den = np.sum(np.multiply(alpha[length], beta[length]))
             for state in range(num_states):
                 gamma[obs_num][length][state] = alpha[length][state] * beta[length][state] / den
 
 
 
-        den = np.sum(alpha[end][:])
-        for t in range(obs_len):
+        den = np.sum(alpha[-1][:])
+        for t in range(obs_len-1):
             for i in range(num_states):
                 for j in range(num_states):
                     xi[obs_num][t][i][j] = alpha[t][i] * A[i][j] * beta[t+1][j] * O[j][obs[t+1]] / den
@@ -127,7 +135,7 @@ def forward(num_states, obs, A, O):
     """
     len_ = len(obs)                   # number of observations
     # stores p(seqence)
-    prob = [[[0.] for i in range(num_states)] for i in range(len_)]
+    prob = np.zeros([len_, num_states])
 
     # initializes uniform state distribution, factored by the
     # probability of observing the sequence from the state (given by the
@@ -150,7 +158,7 @@ def forward(num_states, obs, A, O):
 
             prob[length][state] = p_trans * p_obs  # update probability
 
-        prob[length] = prob[length][:]  # copies by value
+        prob[length] = np.divide(prob[length][:], np.sum(prob[length][:]))  # copies by value
 
     # return total probability
     return prob
@@ -158,7 +166,7 @@ def forward(num_states, obs, A, O):
 def backward(num_states, obs, A, O):
     len_ = len(obs)                   # number of observations
     # stores p(seqence)
-    prob = [[1 for i in range(num_states)] for i in range(len_)]
+    prob = np.ones([len_, num_states])
 
     for length in range(len_-2, -1, -1):   # length + 1 to avoid initial condition
         for state in range(num_states):
@@ -175,7 +183,7 @@ def backward(num_states, obs, A, O):
 
             prob[length][state] = p_trans  # update probability
 
-        prob[length] = prob[length][:]  # copies by value
+        prob[length] = np.divide(prob[length][:], np.sum(prob[length][:]))   # copies by value
 
     # return total probability
     return prob
