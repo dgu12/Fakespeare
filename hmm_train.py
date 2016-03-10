@@ -6,7 +6,7 @@ from shakespeare import parse, parseTok
 
 def main():
     if len(sys.argv) != 2:
-        print 'Usage:', sys.argv[0], '[num hidden states]'
+        print 'Usage: python', sys.argv[0], '[num hidden states]'
         return -1
     else:
         num_states = int(sys.argv[1])
@@ -62,10 +62,10 @@ def main():
             f.write(repr(A[i][j])+'\n')
         f.write('\n')
 
-    f.write('A')
+    f.write('O')
     for i in range(num_states):
         for j in range(num_obs):
-            f.write(repr(O[i][j]))
+            f.write(repr(O[i][j])+'\n')
         f.write('\n')
 
     f.close()
