@@ -1,7 +1,8 @@
 import numpy as np
 import random as rand
 import sys
-from shakespeare import parse, parseTok
+from hyphen import Hyphenator
+from shakespeare import parse, parseTok, parseSyll
 
 
 def main():
@@ -12,7 +13,7 @@ def main():
         num_states = int(sys.argv[1])
 
     eps = 0.01
-    token_vals, obs_seq = parseTok('shakespeare.txt', 'spenser.txt')
+    token_vals, obs_seq = parseSyll('shakespeare.txt', 'spenser.txt')
 
     num_obs = len(token_vals)
     
