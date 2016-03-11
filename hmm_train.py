@@ -56,13 +56,13 @@ def main():
         print 'diff/first_diff is', diff/first_diff
 
     f = open(sys.argv[1]+'.txt', 'w')
-    f.write('A')
+    f.write('A\n')
     for i in range(num_states):
         for j in range(num_states):
             f.write(repr(A[i][j])+'\n')
         f.write('\n')
 
-    f.write('O')
+    f.write('O\n')
     for i in range(num_states):
         for j in range(num_obs):
             f.write(repr(O[i][j])+'\n')
@@ -89,21 +89,33 @@ def latex_matrix(matrix):
 
 # Uses a single Maximization step to compute A (state-transition) and
 # O (observation) matrices. See Lecture 6 Slide 65.
-def mStep(num_states, gamma, xi, obs, num_obs):
+def mStep(num_states, gamma, xi, obs_seq, num_obs):
 
     A = np.zeros([num_states, num_states])
     O = np.zeros([num_states, num_obs])
 
     for i in range(num_states):
         for j in range(num_states):
-            A[i][j] = np.sum(xi[:][:-1-1][i][j]) / np.sum(gamma[:][:-2][i])
+            num = 0
+            den = 0
+            for o in range(len(obs_seq)):
+                num += np.sum(xi[o][:len(obs_seq[o])-2][i][j])
+                den += np.sum(gamma[o][:len(obs_seq[o])-2][i])
+            A[i][j] = num / den
 
         for j in range(num_obs):
-            for o in range(len(obs)):
-                for t in range(len(obs[o])):
-                    if obs[o][t] == j:
+            den = 0
+            for o in range(len(obs_seq)):
+                for t in range(len(obs_seq[o])):
+                    if obs_seq[o][t] == j:
                         O[i][j] += gamma[o][t][i]
-            O[i][j] /= np.sum(gamma[:][:][i]) 
+                    den += gamma[o][t][i]
+            O[i][j] /= den
+
+        A_row = np.sum(A[i][:])
+        O_row = np.sum(O[i][:]) 
+        assert(A_row > 0.9 and A_row < 1.1)
+        assert(O_row > 0.9 and O_row < 1.1)
 
     return A, O
 
@@ -133,8 +145,12 @@ def eStep(num_states, obs_seq, A, O):
 
 
 
-        den = np.sum(alpha[-1][:])
+
         for t in range(obs_len-1):
+            den = 0
+            for a in range(num_states):
+                for b in range(num_states):
+                    den += alpha[t][a] * O[b][obs[t+1]] * A[a][b] * beta[t+1][b]
             for i in range(num_states):
                 for j in range(num_states):
                     xi[obs_num][t][i][j] = alpha[t][i] * A[i][j] * beta[t+1][j] * O[j][obs[t+1]] / den
