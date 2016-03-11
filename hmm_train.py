@@ -55,7 +55,7 @@ def main():
         print 'diff is ', diff
         print 'diff/first_diff is', diff/first_diff
 
-    f = open(sys.argv[1]+'.txt', 'w')
+    f = open(sys.argv[1]+'_no_start.txt', 'w')
     f.write('A\n')
     for i in range(num_states):
         for j in range(num_states):
@@ -70,11 +70,7 @@ def main():
 
     f.close()
 
-    A_str = latex_matrix(A)
-    O_str = latex_matrix(O)
-    with open('1G.txt', 'w') as f:
-        f.write(A_str)
-        f.write(O_str)
+    print 'done with', sys.argv[1], 'without start'
 
 
 def latex_matrix(matrix):
@@ -215,7 +211,7 @@ def backward(num_states, obs, A, O):
             # We iterate through all possible previous states, and update
             # p_trans accordingly.
             for prev_state in range(num_states):
-                p_trans += prob[length + 1][prev_state] * A[prev_state][state] * O[prev_state][obs[length + 1]]
+                p_trans += prob[length + 1][prev_state] * A[state][prev_state] * O[prev_state][obs[length + 1]]
 
             prob[length][state] = p_trans  # update probability
 
