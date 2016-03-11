@@ -100,7 +100,7 @@ def parseSyll(f1, f2):
 					temp.append(token_vals.index(s.lower()))
 		observations.append(temp)
 	return token_vals, observations
-	
+
 if __name__ == '__main__':
 	# Test to see if parsing works.
 	token_vals = []
@@ -139,7 +139,6 @@ if __name__ == '__main__':
 			for word in line.split():
 				temp.append(token_vals.index(word.lower()))
 		observations.append(temp)
-
-	print observations
+	print len(token_vals)
 	#print len(shak)
 	#print len(spen)
