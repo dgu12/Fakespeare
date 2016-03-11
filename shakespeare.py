@@ -49,8 +49,8 @@ def parse(filename):
 		elif len(line.split()) != 0:
 			poem.append(line)
 	return corpus
-def parseTokLim(f1):
-	shak = parseLim(f1)
+def parseTokLim(f1, numPoem):
+	shak = parseLim(f1, numPoem)
 	token_vals = []
 	observations = []
 	for poem in shak:
