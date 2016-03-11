@@ -7,7 +7,7 @@ spenser = 'spenser.txt'
 # Note that the files are parsed into the following fowm: it is a nested
 # list of lists of lines: the outmost list is a list of poems, which
 # is a list of lines.
-
+from hyphen import Hyphenator
 def parse(filename):
 	'''Parses the shakespeare.txt file into the format defined in the form
 	above.'''
@@ -60,6 +60,46 @@ def parseTok(f1, f2):
 		observations.append(temp)
 	return token_vals, observations
 
+def parseSyll(f1, f2):
+	h_en = Hyphenator('en_US')
+	observations = []
+	token_vals = []
+	shak = parse(f1)
+	spen = parse(f2)
+	for poem in shak:
+		temp = []
+		for line in poem:
+			for word in line.split():
+				syls = h_en.syllables(unicode(word))
+				for s in syls:
+					if s not in token_vals:
+						token_vals.append(s.lower())
+	for poem in spen:
+		temp = []
+		for line in poem:
+			for word in line.split():
+				syls = h_en.syllables(unicode(word))
+				for s in syls:
+					if s not in token_vals:
+						token_vals.append(s.lower())
+	for poem in shak:
+		temp = []
+		for line in poem:
+			for word in line.split():
+				syls = h_en.syllables(unicode(word))
+				for s in syls:
+					temp.append(token_vals.index(s.lower()))
+		observations.append(temp)
+
+	for poem in spen:
+		temp = []
+		for line in poem:
+			for word in line.split():
+				syls = h_en.syllables(unicode(word))
+				for s in syls:
+					temp.append(token_vals.index(s.lower()))
+		observations.append(temp)
+	return token_vals, observations
 
 if __name__ == '__main__':
 	# Test to see if parsing works.
@@ -99,7 +139,6 @@ if __name__ == '__main__':
 			for word in line.split():
 				temp.append(token_vals.index(word.lower()))
 		observations.append(temp)
-
-	print observations
+	print len(token_vals)
 	#print len(shak)
 	#print len(spen)
