@@ -3,7 +3,7 @@ import random as rand
 import sys
 from hyphen import Hyphenator
 from shakespeare import parse, parseTok, parseSyll
-
+from genPoem import hmmGenerate
 
 def main():
     if len(sys.argv) != 2:
@@ -76,6 +76,7 @@ def main():
     with open('1G.txt', 'w') as f:
         f.write(A_str)
         f.write(O_str)
+    hmmGenerate(A, O, token_vals)
 
 
 def latex_matrix(matrix):
@@ -200,7 +201,7 @@ def backward(num_states, obs, A, O):
             # We iterate through all possible previous states, and update
             # p_trans accordingly.
             for prev_state in range(num_states):
-                p_trans += prob[length + 1][prev_state] * A[prev_state][state] * O[prev_state][obs[length + 1]]
+                p_trans += prob[length + 1][prev_state] * A[state][prev_state] * O[prev_state][obs[length + 1]]
 
             prob[length][state] = p_trans  # update probability
 

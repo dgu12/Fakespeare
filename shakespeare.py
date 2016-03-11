@@ -8,9 +8,31 @@ spenser = 'spenser.txt'
 # list of lists of lines: the outmost list is a list of poems, which
 # is a list of lines.
 from hyphen import Hyphenator
+def parseLim(filename, numPoem):
+	f = open(filename, 'r')
+	corpus = []
+	poem = []
+	first = True
+	p = 0
+	while p < numPoem:
+		for line in f:
+			line = line.strip() # Remove whitespace.
+			if len(line.split()) == 1:
+				# Start a new poem.
+				if first:
+					first = False
+				else:
+					corpus.append(poem)
+					p += 1
+				poem = []
+			elif len(line.split()) != 0:
+				poem.append(line)
+	return corpus
+
 def parse(filename):
 	'''Parses the shakespeare.txt file into the format defined in the form
 	above.'''
+
 	f = open(filename, 'r')
 	corpus = []
 	poem = []
@@ -27,6 +49,23 @@ def parse(filename):
 		elif len(line.split()) != 0:
 			poem.append(line)
 	return corpus
+def parseTokLim(f1):
+	shak = parseLim(f1)
+	token_vals = []
+	observations = []
+	for poem in shak:
+		for line in poem:
+			for word in line.split():
+	 			if word not in token_vals:
+	 				token_vals.append(word.lower())
+	for poem in shak:
+		temp = []
+		for line in poem:
+			for word in line.split():
+				temp.append(token_vals.index(word.lower()))
+		
+		observations.append(temp)
+	return token_vals, observations
 
 def parseTok(f1, f2):
 	token_vals = []

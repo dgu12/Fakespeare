@@ -6,7 +6,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 	h_en = Hyphenator('en_US')
 	numStates = len(A_Mat)
 	numObs = np.shape(O_Mat)[1]
-	random.seed()
+	random.seed(0)
 	start = random.randint(1, numStates)
 	state = start
 	poem = []

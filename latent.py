@@ -5,8 +5,10 @@ import numpy as np
 from nltk.tag.hmm import HiddenMarkovModelTagger, HiddenMarkovModelTrainer
 # Self-written module.
 import shakespeare
+from genPoem import hmmGenerate
 
-lstates = range(10, 101, 10)
+#lstates = range(10, 101, 10)
+lstates = 8
 
 def generate(A, O, length):
 	'''Given the transition matrix A and observation matrix O which
@@ -60,13 +62,33 @@ if __name__ == '__main__':
 	training = []
 	for poem in obs:
 		training.append([(i, None) for i in poem])
-	for states in lstates:
-		hmm = HiddenMarkovModelTrainer(range(states), range(len(tokens)))
-		# Automatically creates a random model if no model argument specified.
-		model = hmm.train_unsupervised(training, max_iterations = 200)
-		# Need an object with a random method.
-		rng = random.Random()
-		rng.seed(0)
-		# Get a random "poem" from our model.
-		print [tokens[tup[0]] for tup in model.random_sample(rng, 110)]
+	#for states in lstates:
+	states = lstates
+	hmm = HiddenMarkovModelTrainer(range(states), range(len(tokens)))
+	# Automatically creates a random model if no model argument specified.
+	model = hmm.train_unsupervised(training, max_iterations = 200)
+	# Need an object with a random method.
+	rng = random.Random()
+	rng.seed(0)
+	# Get a random "poem" from our model.
+	#print [tokens[tup[0]] for tup in model.random_sample(rng, 110)]
+	# Convert transition and output of model in np.matrices
+	# A_mat = np.zeros((states, states))
+	# for r in range(0, states):
+	# 	for c in range(0, states):
+	# 		A_mat[r][c] = model._transitions[r][c]
+
+	O_mat = np.zeros((states, len(tokens)))
+	# for r in range(0, states):
+	# 	for c in range(0, len(tokens)):
+	# 		O_mat[r][c] = model._outputs[r][c]
+
+	A_mat = model._transitions_matrix
+	for r in range(0, states):
+		O_mat[r] = model._outputs_vector(r)
+		
+
+
+
+	hmmGenerate(A_mat, O_mat, tokens)
 
