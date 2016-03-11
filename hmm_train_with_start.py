@@ -1,19 +1,18 @@
 import numpy as np
 import random as rand
 import sys
-from hyphen import Hyphenator
 from shakespeare import parse, parseTok, parseSyll
 from genPoem import hmmGenerate
 
 def main():
     if len(sys.argv) != 2:
-        print 'Usage:', sys.argv[0], '[num hidden states]'
+        print 'Usage: python', sys.argv[0], '[num hidden states]'
         return -1
     else:
         num_states = int(sys.argv[1])
 
     eps = 0.01
-    token_vals, obs_seq = parseSyll('shakespeare.txt', 'spenser.txt')
+    token_vals, obs_seq = parseTok('shakespeare.txt', 'spenser.txt')
 
     num_obs = len(token_vals)
     
@@ -35,10 +34,21 @@ def main():
         # make each row sum to 1
         O[i][:] = O[i][:] / np.sum(O[i][:])
 
+    start = np.ones(num_states) / num_states
+
     prev_A = A
     prev_O = O
 
-    gamma, xi = eStep(num_states, obs_seq, A, O)
+    gamma, xi = eStep(start, num_states, obs_seq, A, O)
+
+    start = np.zeros(num_states)
+    for i in range(num_states):
+        for o in range(len(obs_seq)):
+            start[i] += gamma[o][0][i] / len(obs_seq)
+    start_sum = np.sum(start)
+    assert(start_sum>0.9 and start_sum<1.1)
+
+
     A, O = mStep(num_states, gamma, xi, obs_seq, num_obs)
 
     diff = np.linalg.norm(np.subtract(prev_A, A)) + np.linalg.norm(np.subtract(prev_O, O))
@@ -49,34 +59,43 @@ def main():
     while diff/first_diff > eps:
         prev_A = A
         prev_O = O
-        gamma, xi = eStep(num_states, obs_seq, A, O)
+        gamma, xi = eStep(start, num_states, obs_seq, A, O)
+
+        start = np.zeros(num_states)
+        for i in range(num_states):
+            for o in range(len(obs_seq)):
+                start[i] += gamma[o][0][i] / len(obs_seq)
+        start_sum = np.sum(start)
+        assert(start_sum>0.9 and start_sum<1.1)
+
         A, O = mStep(num_states, gamma, xi, obs_seq, num_obs)
         diff = np.linalg.norm(np.subtract(prev_A, A)) + np.linalg.norm(np.subtract(prev_O, O))
 
         print 'diff is ', diff
         print 'diff/first_diff is', diff/first_diff
 
-    f = open(sys.argv[1]+'.txt', 'w')
-    f.write('A')
+    f = open(sys.argv[1]+'_with_start.txt', 'w')
+    f.write('S\n')
+    for i in range(num_states):
+        f.write(repr(start[i])+'\n')
+    f.write('\n')
+
+    f.write('A\n')
     for i in range(num_states):
         for j in range(num_states):
             f.write(repr(A[i][j])+'\n')
         f.write('\n')
 
-    f.write('A')
+    f.write('O\n')
     for i in range(num_states):
         for j in range(num_obs):
-            f.write(repr(O[i][j]))
+            f.write(repr(O[i][j])+'\n')
         f.write('\n')
 
     f.close()
 
-    A_str = latex_matrix(A)
-    O_str = latex_matrix(O)
-    with open('1G.txt', 'w') as f:
-        f.write(A_str)
-        f.write(O_str)
     hmmGenerate(A, O, token_vals)
+    print 'done with', sys.argv[1], 'with start'
 
 
 def latex_matrix(matrix):
@@ -91,25 +110,37 @@ def latex_matrix(matrix):
 
 # Uses a single Maximization step to compute A (state-transition) and
 # O (observation) matrices. See Lecture 6 Slide 65.
-def mStep(num_states, gamma, xi, obs, num_obs):
+def mStep(num_states, gamma, xi, obs_seq, num_obs):
 
     A = np.zeros([num_states, num_states])
     O = np.zeros([num_states, num_obs])
 
     for i in range(num_states):
         for j in range(num_states):
-            A[i][j] = np.sum(xi[:][:-1-1][i][j]) / np.sum(gamma[:][:-2][i])
+            num = 0
+            den = 0
+            for o in range(len(obs_seq)):
+                num += np.sum(xi[o][:len(obs_seq[o])-2][i][j])
+                den += np.sum(gamma[o][:len(obs_seq[o])-2][i])
+            A[i][j] = num / den
 
         for j in range(num_obs):
-            for o in range(len(obs)):
-                for t in range(len(obs[o])):
-                    if obs[o][t] == j:
+            den = 0
+            for o in range(len(obs_seq)):
+                for t in range(len(obs_seq[o])):
+                    if obs_seq[o][t] == j:
                         O[i][j] += gamma[o][t][i]
-            O[i][j] /= np.sum(gamma[:][:][i]) 
+                    den += gamma[o][t][i]
+            O[i][j] /= den
+
+        A_row = np.sum(A[i][:])
+        O_row = np.sum(O[i][:]) 
+        assert(A_row > 0.9 and A_row < 1.1)
+        assert(O_row > 0.9 and O_row < 1.1)
 
     return A, O
 
-def eStep(num_states, obs_seq, A, O):
+def eStep(start, num_states, obs_seq, A, O):
     # probability of being in state i at time t given the observed sequence
     # and parameters
     gamma = np.zeros([len(obs_seq), max(len(obs) for obs in obs_seq), num_states]) 
@@ -120,7 +151,7 @@ def eStep(num_states, obs_seq, A, O):
     for obs_num in range(len(obs_seq)):
         obs = obs_seq[obs_num]
 
-        alpha = forward(num_states, obs, A, O)
+        alpha = forward(start, num_states, obs, A, O)
         beta = backward(num_states, obs, A, O)
         
 
@@ -135,8 +166,12 @@ def eStep(num_states, obs_seq, A, O):
 
 
 
-        den = np.sum(alpha[-1][:])
+
         for t in range(obs_len-1):
+            den = 0
+            for a in range(num_states):
+                for b in range(num_states):
+                    den += alpha[t][a] * O[b][obs[t+1]] * A[a][b] * beta[t+1][b]
             for i in range(num_states):
                 for j in range(num_states):
                     xi[obs_num][t][i][j] = alpha[t][i] * A[i][j] * beta[t+1][j] * O[j][obs[t+1]] / den
@@ -145,7 +180,7 @@ def eStep(num_states, obs_seq, A, O):
 
 
 
-def forward(num_states, obs, A, O):
+def forward(start, num_states, obs, A, O):
     """Computes the probability a given HMM emits a given observation using the
         forward algorithm. This uses a dynamic programming approach, and uses
         the 'prob' matrix to store the probability of the sequence at each length.
@@ -162,7 +197,7 @@ def forward(num_states, obs, A, O):
     # initializes uniform state distribution, factored by the
     # probability of observing the sequence from the state (given by the
     # observation matrix)
-    prob[0] = [(1. / num_states) * O[j][obs[0]] for j in range(num_states)]
+    prob[0] = [start[j] * O[j][obs[0]] for j in range(num_states)]
 
     # We iterate through all indices in the data
     for length in range(1, len_):   # length + 1 to avoid initial condition
