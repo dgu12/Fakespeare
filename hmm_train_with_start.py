@@ -11,8 +11,8 @@ def main():
     else:
         num_states = int(sys.argv[1])
 
-    eps = 0.01
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 40, 'spenser.txt', 40)
+    eps = 0.005
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 20, 'spenser.txt', 0)
 
     num_obs = len(token_vals)
     
@@ -21,7 +21,7 @@ def main():
     # randomly initialize A matrix
     for i in range(num_states):
         for j in range(num_states):
-            A[i][j] = random.random() + 0.1
+            A[i][j] = 0.4 * random.random() + 0.1
         # make each row sum to 1
         A[i][:] = A[i][:] / np.sum(A[i][:])
 
@@ -30,7 +30,7 @@ def main():
     # randomly initialize O matrix
     for i in range(num_states):
         for j in range(num_obs):
-            O[i][j] = random.random() + 0.1
+            O[i][j] = 0.4 * random.random() + 0.1
         # make each row sum to 1
         O[i][:] = O[i][:] / np.sum(O[i][:])
 
@@ -208,7 +208,7 @@ def forward(start, num_states, obs, A, O):
     # initializes uniform state distribution, factored by the
     # probability of observing the sequence from the state (given by the
     # observation matrix)
-    prob[0] = [start[j] * O[j][obs[0]] for j in range(num_states)]
+    prob[0] = [start[j] * O[j][obs[0]] + 1./num_states for j in range(num_states)]
     prob[0] = np.divide(prob[0][:], np.sum(prob[0][:]))
 
     # We iterate through all indices in the data
