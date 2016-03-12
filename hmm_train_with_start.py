@@ -208,7 +208,7 @@ def forward(start, num_states, obs, A, O):
     # initializes uniform state distribution, factored by the
     # probability of observing the sequence from the state (given by the
     # observation matrix)
-    prob[0] = [start[j] * O[j][obs[0]] + 1./num_states for j in range(num_states)]
+    prob[0] = [start[j] * O[j][obs[0]] for j in range(num_states)]
     prob[0] = np.divide(prob[0][:], np.sum(prob[0][:]))
 
     # We iterate through all indices in the data
