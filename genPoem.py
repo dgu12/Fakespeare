@@ -27,6 +27,9 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 						# Emit this observation
 						line.append(tokens[ind])
 						numSyl += len(h_en.syllables(unicode(tokens[ind])))
+						print 'emmission is', tokens[ind]
+						print 'syllables is '
+						print h_en.syllables(unicode(tokens[ind]))
 						break
 					ind += 1
 				# Transition to the next state
@@ -44,5 +47,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 		#Print line
 		for line in poem:
 			print ' '.join(line)
+			print '\n'
 
 		user_input = raw_input('Generate a another poem? [y/n]')
+
