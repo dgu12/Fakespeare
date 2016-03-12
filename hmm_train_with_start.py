@@ -1,8 +1,17 @@
 import numpy as np
 import random
 import sys
+import signal
 from shakespeare import *
 from genPoem import hmmGenerate
+
+kill = False
+
+def signal_handler(signal, frame):
+    print 'You pressed Ctrl+C! Gonna stop and save matrices after this step.'
+    global kill
+    kill = True
+
 
 def main():
     if len(sys.argv) != 2:
@@ -11,8 +20,10 @@ def main():
     else:
         num_states = int(sys.argv[1])
 
+    signal.signal(signal.SIGINT, signal_handler)
+
     eps = 0.01
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 20, 'spenser.txt', 0)
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 25, 'spenser.txt', 0)
 
     num_obs = len(token_vals)
     
@@ -21,7 +32,7 @@ def main():
     # randomly initialize A matrix
     for i in range(num_states):
         for j in range(num_states):
-            A[i][j] = 0.4 * random.random() + 0.1
+            A[i][j] = random.random() + 0.1
         # make each row sum to 1
         A[i][:] = A[i][:] / np.sum(A[i][:])
 
@@ -30,7 +41,7 @@ def main():
     # randomly initialize O matrix
     for i in range(num_states):
         for j in range(num_obs):
-            O[i][j] = 0.4 * random.random() + 0.1
+            O[i][j] = random.random() + 0.1
         # make each row sum to 1
         O[i][:] = O[i][:] / np.sum(O[i][:])
 
@@ -56,7 +67,8 @@ def main():
 
     print 'diff is ', diff
 
-    while diff/first_diff > eps:
+    while diff/first_diff > eps and not kill:
+        print kill
         prev_A = A
         prev_O = O
         gamma, xi = eStep(start, num_states, obs_seq, A, O)
