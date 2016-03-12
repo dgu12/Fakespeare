@@ -56,7 +56,7 @@ def generate(A, O, length):
 
 
 if __name__ == '__main__':
-	tokens, obs = shakespeare.parseTok("shakespeare.txt", "spenser.txt")
+	tokens, obs = shakespeare.parseTokLim("shakespeare.txt", -1, "spenser.txt", -1)
 	# Need tuples for each token where second element is the tag (or None if
 	# unlabeled).
 	training = []

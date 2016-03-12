@@ -91,12 +91,12 @@ def parseTok(f1, f2):
 	for poem in shak:
 		for line in poem:
 			for word in line.split():
-	 			if word not in token_vals:
+	 			if word.lower() not in token_vals:
 	 				token_vals.append(word.lower())
 	for poem in spen:
 		for line in poem:
 	 		for word in line.split():
-	 			if word not in token_vals:
+	 			if word.lower() not in token_vals:
 	 				token_vals.append(word.lower())
 
 	for poem in shak:
