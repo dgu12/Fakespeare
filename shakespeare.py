@@ -23,8 +23,9 @@ def parseLim(filename, numPoem):
 			else:
 				corpus.append(poem)
 				p += 1
-				if p > numPoem:
-					break
+				if numPoem != -1:
+					if p > numPoem:
+						break
 			poem = []
 		elif len(line.split()) != 0:
 			poem.append(line)
@@ -50,8 +51,9 @@ def parse(filename):
 		elif len(line.split()) != 0:
 			poem.append(line)
 	return corpus
-def parseTokLim(f1, numPoem):
-	shak = parseLim(f1, numPoem)
+def parseTokLim(f1, numPoem1, f2, numPoem2):
+	shak = parseLim(f1, numPoem1)
+	spen = parseLim(f2, numPoem2)
 	token_vals = []
 	observations = []
 	for poem in shak:
