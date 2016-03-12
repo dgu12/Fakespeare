@@ -20,7 +20,6 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
 			prob = random.random()
 			index = 0
 			for p in startP:
-				print p
 				sumP += p
 				if sumP > prob:
 					state = index
