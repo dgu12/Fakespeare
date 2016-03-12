@@ -26,11 +26,11 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 					if sumP > prob:
 						# Emit this observation
 						line.append(tokens[ind])
+
 						if len(h_en.syllables(unicode(tokens[ind]))) == 0:
 							numSyl += 1
 						else:
 							numSyl += len(h_en.syllables(unicode(tokens[ind])))
-
 						break
 					ind += 1
 				# Transition to the next state
@@ -51,3 +51,4 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 	        print '\n'
 
 		user_input = raw_input('Generate a another poem? [y/n]')
+

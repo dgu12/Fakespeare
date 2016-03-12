@@ -21,7 +21,7 @@ def main():
     # randomly initialize A matrix
     for i in range(num_states):
         for j in range(num_states):
-            A[i][j] = random.random()
+            A[i][j] = random.random() + 0.1
         # make each row sum to 1
         A[i][:] = A[i][:] / np.sum(A[i][:])
 
@@ -30,7 +30,7 @@ def main():
     # randomly initialize O matrix
     for i in range(num_states):
         for j in range(num_obs):
-            O[i][j] = random.random()
+            O[i][j] = random.random() + 0.1
         # make each row sum to 1
         O[i][:] = O[i][:] / np.sum(O[i][:])
 
