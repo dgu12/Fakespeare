@@ -15,7 +15,6 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
 		if startP == None:
 			state = random.randint(0, numStates-1)
 		else:
-			temp = random.random()
 			sumP = 0
 			prob = random.random()
 			index = 0

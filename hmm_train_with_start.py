@@ -12,7 +12,7 @@ def main():
         num_states = int(sys.argv[1])
 
     eps = 0.01
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 10, 'spenser.txt', 10)
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 40, 'spenser.txt', 40)
 
     num_obs = len(token_vals)
     
@@ -75,9 +75,19 @@ def main():
         print 'diff/first_diff is', diff/first_diff
 
     f = open(sys.argv[1]+'_with_start.txt', 'w')
-    f.write('S\n')
+
+    f.write('true\n')
+    f.write(str(num_states) + '\n')
+    f.write(str(num_obs) + '\n\n')
+
+    f.write('Start\n')
     for i in range(num_states):
         f.write(repr(start[i])+'\n')
+    f.write('\n')
+
+    f.write('Tokens\n')
+    for i in range(num_obs):
+        f.write(str(token_vals[i])+'\n')
     f.write('\n')
 
     f.write('A\n')
