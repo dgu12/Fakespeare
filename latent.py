@@ -85,8 +85,8 @@ if __name__ == '__main__':
 
 	A_mat = model._transitions_matrix
 	for r in range(0, states):
-		O_mat[r] = model._outputs_vector(r)
-		
+		O_mat[r][:] = model._outputs_vector(r)
+
 
 
 

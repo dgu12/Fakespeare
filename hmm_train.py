@@ -1,7 +1,8 @@
 import numpy as np
-import random as rand
+import random
 import sys
-from shakespeare import parse, parseTok
+from shakespeare import *
+from genPoem import hmmGenerate
 
 
 def main():
@@ -12,7 +13,8 @@ def main():
         num_states = int(sys.argv[1])
 
     eps = 0.01
-    token_vals, obs_seq = parseTok('shakespeare.txt', 'spenser.txt')
+    #token_vals, obs_seq = parseTok('shakespeare.txt', 'spenser.txt')
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 10)
 
     num_obs = len(token_vals)
     
@@ -21,7 +23,7 @@ def main():
     # randomly initialize A matrix
     for i in range(num_states):
         for j in range(num_states):
-            A[i][j] = rand.random()
+            A[i][j] = random.random()
         # make each row sum to 1
         A[i][:] = A[i][:] / np.sum(A[i][:])
 
@@ -30,7 +32,7 @@ def main():
     # randomly initialize O matrix
     for i in range(num_states):
         for j in range(num_obs):
-            O[i][j] = rand.random()
+            O[i][j] = random.random()
         # make each row sum to 1
         O[i][:] = O[i][:] / np.sum(O[i][:])
 
@@ -69,7 +71,7 @@ def main():
         f.write('\n')
 
     f.close()
-
+    hmmGenerate(A, O, token_vals)
     print 'done with', sys.argv[1], 'without start'
 
 
@@ -99,13 +101,14 @@ def mStep(num_states, gamma, xi, obs_seq, num_obs):
                 den += np.sum(gamma[o][:len(obs_seq[o])-2][i])
             A[i][j] = num / den
 
-        for j in range(num_obs):
-            den = 0
-            for o in range(len(obs_seq)):
-                for t in range(len(obs_seq[o])):
+        den = 0
+        for o in range(len(obs_seq)):
+            for t in range(len(obs_seq[o])):
+                den += gamma[o][t][i]
+                for j in range(num_obs):
                     if obs_seq[o][t] == j:
                         O[i][j] += gamma[o][t][i]
-                    den += gamma[o][t][i]
+        for j in range(num_obs):
             O[i][j] /= den
 
         A_row = np.sum(A[i][:])

@@ -14,19 +14,20 @@ def parseLim(filename, numPoem):
 	poem = []
 	first = True
 	p = 0
-	while p < numPoem:
-		for line in f:
-			line = line.strip() # Remove whitespace.
-			if len(line.split()) == 1:
-				# Start a new poem.
-				if first:
-					first = False
-				else:
-					corpus.append(poem)
-					p += 1
-				poem = []
-			elif len(line.split()) != 0:
-				poem.append(line)
+	for line in f:
+		line = line.strip() # Remove whitespace.
+		if len(line.split()) == 1:
+			# Start a new poem.
+			if first:
+				first = False
+			else:
+				corpus.append(poem)
+				p += 1
+				if p > numPoem:
+					break
+			poem = []
+		elif len(line.split()) != 0:
+			poem.append(line)
 	return corpus
 
 def parse(filename):
