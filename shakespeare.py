@@ -68,6 +68,19 @@ def parseTokLim(f1, numPoem1, f2, numPoem2):
 				temp.append(token_vals.index(word.lower()))
 		
 		observations.append(temp)
+
+	for poem in spen:
+		for line in poem:
+			for word in line.split():
+	 			if word not in token_vals:
+	 				token_vals.append(word.lower())
+	for poem in spen:
+		temp = []
+		for line in poem:
+			for word in line.split():
+				temp.append(token_vals.index(word.lower()))
+		observations.append(temp)
+		
 	return token_vals, observations
 
 def parseTok(f1, f2):

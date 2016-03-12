@@ -14,6 +14,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 		start = random.randint(0, numStates-1)
 		state = start
 		poem = []
+		capitalize = False
 		for l in range(0,14):
 			numSyl = 0
 			line = []
@@ -21,11 +22,21 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 				prob = random.random()
 				ind = 0
 				sumP = 0
+				if numSyl == 0:
+					capitalize = True
 				while ind < numObs:
+
 					sumP += O_Mat[state][ind]
 					if sumP > prob:
 						# Emit this observation
-						line.append(tokens[ind])
+						if capitalize == True:
+							line.append(tokens[ind].title())
+							capitalize = False
+						else:
+							line.append(tokens[ind])
+
+						if tokens[ind].endswith(".") or tokens[ind].endswith("?"):
+							capitalize = True
 
 						if len(h_en.syllables(unicode(tokens[ind]))) == 0:
 							numSyl += 1
@@ -52,3 +63,9 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 
 		user_input = raw_input('Generate a another poem? [y/n]')
 
+def genFromFile(f, numStates, numObs):
+	data = open(f)
+	A_Mat = np.zeros((numStates, numStates))
+	O_Mat = np.zeros((numStates, numObs))
+
+	data.close
