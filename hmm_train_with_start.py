@@ -22,8 +22,8 @@ def main():
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    eps = 0.01
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 25, 'spenser.txt', 0)
+    eps = 0.005
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', -1, 'spenser.txt', -1)
 
     num_obs = len(token_vals)
     
@@ -68,7 +68,6 @@ def main():
     print 'diff is ', diff
 
     while diff/first_diff > eps and not kill:
-        print kill
         prev_A = A
         prev_O = O
         gamma, xi = eStep(start, num_states, obs_seq, A, O)
