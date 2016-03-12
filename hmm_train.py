@@ -15,7 +15,7 @@ def main():
     eps = 0.01
     #token_vals, obs_seq = parseTok('shakespeare.txt', 'spenser.txt')
 
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 20, 'spenser.txt', 10)
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 40, 'spenser.txt', 40)
 
     num_obs = len(token_vals)
     

@@ -63,9 +63,35 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 
 		user_input = raw_input('Generate a another poem? [y/n]')
 
-def genFromFile(f, numStates, numObs):
+def genFromFile(f, numStates, numObs, tokens):
 	data = open(f)
 	A_Mat = np.zeros((numStates, numStates))
 	O_Mat = np.zeros((numStates, numObs))
-
+	isO = False:
+	Arow = 0;
+	Acol = 0;
+	Orow = 0;
+	Ocol = 0;
+	for line in data:
+		if line == "A":
+			continue
+		if line == "O":
+			isO = True
+			continue
+		if isO == True:
+			O_Mat[Orow][Ocol] = float(line)
+			Ocol += 1
+			if Ocol == numObs:
+				Ocol = 0
+				Orow += 1
+		else:
+			A_Mat[Arow][Acol] = float(line)
+			Acol += 1
+			if Acol == numStates:
+				Acol = 0
+				Arow += 1
+				if Arow == numStates:
+					isO = True
 	data.close
+	hmmGenerate(A_Mat, O_Mat, tokens)
+	

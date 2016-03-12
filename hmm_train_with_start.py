@@ -12,7 +12,7 @@ def main():
         num_states = int(sys.argv[1])
 
     eps = 0.01
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 10)
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 10, 'spenser.txt', 10)
 
     num_obs = len(token_vals)
     
