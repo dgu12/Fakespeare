@@ -94,7 +94,7 @@ def main():
 
     f.close()
 
-    hmmGenerate(A, O, token_vals)
+    hmmGenerate(A, O, token_vals, start)
     print 'done with', sys.argv[1], 'with start'
 
 

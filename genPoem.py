@@ -2,7 +2,7 @@ from hyphen import Hyphenator
 import numpy as np
 import random
 
-def hmmGenerate(A_Mat, O_Mat, tokens):
+def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
 
 	user_input = 'y'
 	while (user_input != 'n'):
@@ -11,8 +11,21 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 		numStates = len(A_Mat)
 		numObs = np.shape(O_Mat)[1]
 		#random.seed(0)
-		start = random.randint(0, numStates-1)
-		state = start
+		state = 0
+		if startP == None:
+			state = random.randint(0, numStates-1)
+		else:
+			temp = random.random()
+			sumP = 0
+			prob = random.random()
+			index = 0
+			for p in startP:
+				print p
+				sumP += p
+				if sumP > prob:
+					state = index
+					break
+				index += 1
 		poem = []
 		capitalize = False
 		for l in range(0,14):
@@ -25,7 +38,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 				if numSyl == 0:
 					capitalize = True
 				while ind < numObs:
-
+					
 					sumP += O_Mat[state][ind]
 					if sumP > prob:
 						# Emit this observation
@@ -51,7 +64,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens):
 				while ind < numStates:
 					sumP += A_Mat[state][ind]
 					if sumP > prob:
-						state = A_Mat[state][ind]
+						state = ind
 						break
 					ind += 1
 			poem.append(line)
@@ -67,11 +80,11 @@ def genFromFile(f, numStates, numObs, tokens):
 	data = open(f)
 	A_Mat = np.zeros((numStates, numStates))
 	O_Mat = np.zeros((numStates, numObs))
-	isO = False:
-	Arow = 0;
-	Acol = 0;
-	Orow = 0;
-	Ocol = 0;
+	isO = False
+	Arow = 0
+	Acol = 0
+	Orow = 0
+	Ocol = 0
 	for line in data:
 		if line == "A":
 			continue
