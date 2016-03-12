@@ -66,7 +66,7 @@ if __name__ == '__main__':
 	states = lstates
 	hmm = HiddenMarkovModelTrainer(range(states), range(len(tokens)))
 	# Automatically creates a random model if no model argument specified.
-	model = hmm.train_unsupervised(training, max_iterations = 1)
+	model = hmm.train_unsupervised(training, max_iterations = 100)
 	# Need an object with a random method.
 	rng = random.Random()
 	rng.seed(0)

@@ -6,7 +6,7 @@ def visualize(type, O_Mat, tokens):
 		for state in range(0, len(O_Mat)):
 			prob = 0
 			for obs in range(0, len(O_Mat[0])):
-				word = tokens[obs].translate(None, ".()'?,:!")
+				word = tokens[obs].translate(None, ".()?,:!")
 				if word in nouns:
 					prob += O_Mat[state][obs]
 			print "State " + str(state) + " Noun Prob: " + str(prob)
@@ -15,7 +15,7 @@ def visualize(type, O_Mat, tokens):
 		for state in range(0, len(O_Mat)):
 			prob = 0
 			for obs in range(0, len(O_Mat[0])):
-				word = tokens[obs].translate(None, ".()'?,:!")
+				word = tokens[obs].translate(None, ".()?,:!")
 				if word in verbs:
 					prob += O_Mat[state][obs]
 			print "State " + str(state) + " Verb Prob: " + str(prob)
