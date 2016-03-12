@@ -11,8 +11,8 @@ def main():
     else:
         num_states = int(sys.argv[1])
 
-    eps = 0.005
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 20, 'spenser.txt', 0)
+    eps = 0.0001
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', -1, 'spenser.txt', -1)
 
     num_obs = len(token_vals)
     
@@ -237,7 +237,7 @@ def backward(num_states, obs, A, O):
     # stores p(seqence)
     prob = np.ones([len_, num_states])
 
-    for length in range(len_-2, -1, -1):   # length + 1 to avoid initial condition
+    for length in range(len_-2, -1, -1):   
         for state in range(num_states):
             # stores the probability of transitioning to 'state'
             p_trans = 0

@@ -2,6 +2,7 @@ from hyphen import Hyphenator
 import numpy as np
 import random
 import sys
+from visualize import *
 
 def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
 
@@ -75,7 +76,12 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         for line in poem:
             print ' '.join(line)
             print '\n'
+        print '\n'
 
+        visualize("noun", O_Mat, tokens)
+        print '\n'
+        visualize("verb", O_Mat, tokens)
+        print '\n'
         user_input = raw_input('Generate a another poem? [y/n]')
 
 def genFromFile(f):
