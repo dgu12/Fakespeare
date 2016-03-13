@@ -159,7 +159,7 @@ def genFromFile(f, rhyme):
         poem = rhymeGen(A_Mat, O_Mat, tokens, rhymeLim)
         # Now print the poem.
         for line in poem:
-            print ' '.join(line)
+            print ' '.join(line).capitalize()
         print '\n'
 
 def main():
