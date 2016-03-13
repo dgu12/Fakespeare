@@ -141,8 +141,9 @@ def mStep(num_states, gamma, xi, obs_seq, num_obs):
             num = 0
             den = 0
             for o in range(len(obs_seq)):
-                num += np.sum(xi[o][:len(obs_seq[o])-2][i][j])
-                den += np.sum(gamma[o][:len(obs_seq[o])-2][i])
+                for t in range(len(obs_seq[o])-1):
+                    num += xi[o][t][i][j]
+                    den += gamma[o][t][i]
             A[i][j] = num / den
 
         den = 0

@@ -23,7 +23,7 @@ def main():
     eps = 0.001
     
     signal.signal(signal.SIGINT, signal_handler)
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 5, 'spenser.txt', 0)
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 3, 'spenser.txt', 0)
 
     num_obs = len(token_vals)
     
@@ -123,8 +123,9 @@ def mStep(num_states, gamma, xi, obs_seq, num_obs):
             den = 0
             for o in range(len(obs_seq)):
                 #print 'j is', j, 'i is', i, 'o is',o
-                num += np.sum(xi[o][:len(obs_seq[o])-2][i][j])
-                den += np.sum(gamma[o][:len(obs_seq[o])-2][i])
+                for t in range(len(obs_seq[o])-1):
+                    num += xi[o][t][i][j]
+                    den += gamma[o][t][i]
             A[i][j] = num / den
 
         den = 0
