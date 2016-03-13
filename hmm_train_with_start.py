@@ -23,9 +23,9 @@ def main():
     eps = 0.005
     
     signal.signal(signal.SIGINT, signal_handler)
-    token_vals, obs_seq = parseTokLimMin('shakespeare.txt', 60, 'spenser.txt', 0, 5)
+    token_vals, obs_seq = parseTokLimMin('shakespeare.txt', 50, 'spenser.txt', 0, 6)
 
-    num_states = int(len(token_vals) / 2)
+    num_states = int(len(token_vals) * 1)
 
     num_obs = len(token_vals)
     
