@@ -67,7 +67,7 @@ if __name__ == '__main__':
     states = lstates
     hmm = HiddenMarkovModelTrainer(range(states), range(len(tokens)))
     # Automatically creates a random model if no model argument specified.
-    model = hmm.train_unsupervised(training, max_iterations = 500)
+    model = hmm.train_unsupervised(training, max_iterations = 1)
     # Need an object with a random method.
     rng = random.Random()
 
@@ -89,12 +89,13 @@ if __name__ == '__main__':
     O_mat = np.exp(O_mat)
 
 
+    hmmGenerate(A_mat, O_mat, tokens)
     # Generate a rhyming poem
-    rhyme1 = rhymingDict("shakespeare.txt")
-    rhyme2 = rhymingDict("spenser.txt")
-    rhyme = rhyme1 + rhyme2
-    rhymeLim = rhymeDictLim(tokens, rhyme)
-    poem = rhymeGen(A_mat, O_mat, tokens, rhymeLim)
+    # rhyme1 = rhymingDict("shakespeare.txt")
+    # rhyme2 = rhymingDict("spenser.txt")
+    # rhyme = rhyme1 + rhyme2
+    # rhymeLim = rhymeDictLim(tokens, rhyme)
+    # poem = rhymeGen(A_mat, O_mat, tokens, rhymeLim)
 
     # Now print the poem.
     for line in poem:

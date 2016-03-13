@@ -24,6 +24,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         numStates = len(A_Mat)
         numObs = np.shape(O_Mat)[1]
         state = 0
+        statePath = []
         # If no start probs, assume uniform start distribution
         if startP == None:
             state = random.randint(0, numStates-1)
@@ -44,8 +45,10 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         for l in range(0,14):
             numSyl = 0
             line = []
+            stateTemp = [state]
             # Keep number of syllables per line about 10
             while numSyl < 10:
+                
                 prob = random.random()
                 ind = 0
                 sumP = 0
@@ -76,21 +79,29 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
                             numSyl += len(h_en.syllables(unicode(tokens[ind])))
                         break
                     ind += 1
-                # Transition to the next state
-                prob = random.random()
-                ind = 0
-                sumP = 0
-                while ind < numStates:
-                    sumP += A_Mat[state][ind]
-                    if sumP > prob:
-                        state = ind
-                        break
-                    ind += 1
+                if numSyl < 10:
+                    # Transition to the next state
+                    prob = random.random()
+                    ind = 0
+                    sumP = 0
+                    while ind < numStates:
+                        sumP += A_Mat[state][ind]
+                        if sumP > prob:
+                            stateTemp.append(ind)
+                            state = ind
+                            break
+                        ind += 1
             poem.append(line)
+            statePath.append(stateTemp)
 
         #Print poem
         for line in poem:
             print ' '.join(line)
+        print '\n'
+
+        print 'State sequence'
+        for l in statePath:
+            print l
         print '\n'
 
         # Print part of speech visualization info
