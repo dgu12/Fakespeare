@@ -63,7 +63,8 @@ def main():
 
     A, O = mStep(num_states, gamma, xi, obs_seq, num_obs)
 
-    diff = np.linalg.norm(np.subtract(prev_A, A)) + np.linalg.norm(np.subtract(prev_O, O))
+    diff = np.linalg.norm(np.subtract(prev_A, A)) + \
+            np.linalg.norm(np.subtract(prev_O, O))
     first_diff = diff
 
     print 'diff is ', diff
@@ -81,7 +82,8 @@ def main():
         assert(start_sum>0.9 and start_sum<1.1)
 
         A, O = mStep(num_states, gamma, xi, obs_seq, num_obs)
-        diff = np.linalg.norm(np.subtract(prev_A, A)) + np.linalg.norm(np.subtract(prev_O, O))
+        diff = np.linalg.norm(np.subtract(prev_A, A)) + \
+                np.linalg.norm(np.subtract(prev_O, O))
 
         print 'diff is ', diff
         print 'diff/first_diff is', diff/first_diff
@@ -167,10 +169,12 @@ def mStep(num_states, gamma, xi, obs_seq, num_obs):
 def eStep(start, num_states, obs_seq, A, O):
     # probability of being in state i at time t given the observed sequence
     # and parameters
-    gamma = np.zeros([len(obs_seq), max(len(obs) for obs in obs_seq), num_states]) 
+    gamma = np.zeros([len(obs_seq), max(len(obs) for obs in obs_seq), \
+                                                                 num_states]) 
     
     # probability of being in state i and j at time t
-    xi = np.zeros([len(obs_seq), max(len(obs) for obs in obs_seq), num_states, num_states])
+    xi = np.zeros([len(obs_seq), max(len(obs) for obs in obs_seq), \
+        num_states, num_states])
  
     for obs_num in range(len(obs_seq)):
         obs = obs_seq[obs_num]
@@ -188,7 +192,8 @@ def eStep(start, num_states, obs_seq, A, O):
             for state in range(num_states):
                 den += alpha[length][state] * beta[length][state]
             for state in range(num_states):
-                gamma[obs_num][length][state] = alpha[length][state] * beta[length][state] / den
+                gamma[obs_num][length][state] = alpha[length][state] * \
+                                                beta[length][state] / den
 
 
 
@@ -200,7 +205,8 @@ def eStep(start, num_states, obs_seq, A, O):
                     den += alpha[t][a] * O[b][obs[t+1]] * A[a][b] * beta[t+1][b]
             for i in range(num_states):
                 for j in range(num_states):
-                    xi[obs_num][t][i][j] = alpha[t][i] * A[i][j] * beta[t+1][j] * O[j][obs[t+1]] / den
+                    xi[obs_num][t][i][j] = alpha[t][i] * A[i][j] \
+                                          * beta[t+1][j] * O[j][obs[t+1]] / den
 
     return gamma, xi
 
@@ -209,7 +215,8 @@ def eStep(start, num_states, obs_seq, A, O):
 def forward(start, num_states, obs, A, O):
     """Computes the probability a given HMM emits a given observation using the
         forward algorithm. This uses a dynamic programming approach, and uses
-        the 'prob' matrix to store the probability of the sequence at each length.
+        the 'prob' matrix to store the probability of the sequence at each 
+        length.
         Arguments: num_states the number of states
                    obs        an array of observations
                    A          the transition matrix
@@ -246,8 +253,8 @@ def forward(start, num_states, obs, A, O):
                 p_trans += prob[length - 1][prev_state] * A[prev_state][state]
 
             prob[length][state] = p_trans * p_obs  # update probability
-
-        prob[length] = np.divide(prob[length][:], np.sum(prob[length][:]))  # copies by value
+        # copies by value
+        prob[length] = np.divide(prob[length][:], np.sum(prob[length][:]))  
 
     # return total probability
     return prob
@@ -268,11 +275,13 @@ def backward(num_states, obs, A, O):
             # We iterate through all possible previous states, and update
             # p_trans accordingly.
             for prev_state in range(num_states):
-                p_trans += prob[length + 1][prev_state] * A[state][prev_state] * O[prev_state][obs[length + 1]]
+                p_trans += prob[length + 1][prev_state] * A[state][prev_state] \
+                            * O[prev_state][obs[length + 1]]
 
             prob[length][state] = p_trans  # update probability
 
-        prob[length] = np.divide(prob[length][:], np.sum(prob[length][:]))   # copies by value
+        # copies by value
+        prob[length] = np.divide(prob[length][:], np.sum(prob[length][:]))   
 
     # return total probability
     return prob

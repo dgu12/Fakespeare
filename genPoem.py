@@ -98,6 +98,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         print '\n'
         visualize("verb", O_Mat, tokens)
         print '\n'
+        visualize("article", O_Mat, tokens)
 
         # Prompt to generate more poems
         user_input = raw_input('Generate a another poem? [y/n]')
@@ -181,8 +182,13 @@ def genFromFile(f, rhyme):
         print '\n'
 
 def main():
+    ''' Run this program from the command to generate a poem from an HMM 
+        train file'''
     if len(sys.argv) != 3:
-        print 'Usage: python', sys.argv[0], '[file name] [1 - naive, 0 - rhyme]'
+        # Use 1 to generate an unrhyming poem
+        # Use 0 to generate a rhyming poem
+        print 'Usage: python', sys.argv[0], \
+                '[file name] [1 - naive, 0 - rhyme]'
         return -1
     else:
         file = sys.argv[1]
