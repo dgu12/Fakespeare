@@ -23,7 +23,7 @@ def main():
     eps = 0.001
     
     signal.signal(signal.SIGINT, signal_handler)
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 10, 'spenser.txt', 0)
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 5, 'spenser.txt', 0)
 
     num_obs = len(token_vals)
     
@@ -183,7 +183,9 @@ def eStep(start, num_states, obs_seq, A, O):
 
         for length in range(obs_len):
 
-            den = np.sum(np.multiply(alpha[length], beta[length]))
+            den = 0
+            for state in range(num_states):
+                den += alpha[length][state] * beta[length][state]
             for state in range(num_states):
                 gamma[obs_num][length][state] = alpha[length][state] * beta[length][state] / den
 
