@@ -122,7 +122,7 @@ def mStep(num_states, gamma, xi, obs_seq, num_obs):
             num = 0
             den = 0
             for o in range(len(obs_seq)):
-                print 'j is', j, 'i is', i, 'o is',o
+                #print 'j is', j, 'i is', i, 'o is',o
                 num += np.sum(xi[o][:len(obs_seq[o])-2][i][j])
                 den += np.sum(gamma[o][:len(obs_seq[o])-2][i])
             A[i][j] = num / den
