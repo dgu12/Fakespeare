@@ -105,7 +105,7 @@ def addPair(rhyme, r1, r2):
 # abab bcbc cdcd ee
 # but we will ignore the repeated rhymes, sacrificing a larger dictionary for
 # ease of parsing.
-def rhymingDict(filename):
+def rhymingDict(filename, numPoem):
 	'''Parses a source file f (i.e., a corpus) and returns a list of lists:
 	each element of our outer list is a list which holds an rhyming equivalence
 	class; that is, every word in the list rhymes with every other word.'''
@@ -115,12 +115,18 @@ def rhymingDict(filename):
 	rhyme = []
 	poem = []
 	first = True
+	p = 0
 	for line in f:
 		line = line.strip() # Remove whitespace.
 		if len(line.split()) == 1:
 			# Start a new poem.
 			if first:
 				first = False
+				p += 1
+				if numPoem != -1:
+					if p > numPoem:
+						return rhyme
+
 			else:
 				# Process the current poem to add to our rhyme dictionary.
 				if len(poem) == 14:

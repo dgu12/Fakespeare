@@ -20,10 +20,10 @@ def main():
     else:
         num_states = int(sys.argv[1])
 
-    eps = 0.001
+    eps = 0.005
     
     signal.signal(signal.SIGINT, signal_handler)
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 10, 'spenser.txt', 0)
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', -1, 'spenser.txt', -1)
 
     num_obs = len(token_vals)
     
