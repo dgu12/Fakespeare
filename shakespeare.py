@@ -8,6 +8,7 @@ spenser = 'spenser.txt'
 # list of lists of lines: the outmost list is a list of poems, which
 # is a list of lines.
 from hyphen import Hyphenator
+import string
 def parseLim(filename, numPoem):
 	f = open(filename, 'r')
 	corpus = []
@@ -59,60 +60,36 @@ def parseTokLim(f1, numPoem1, f2, numPoem2):
 	for poem in shak:
 		for line in poem:
 			for word in line.split():
-	 			if word.lower() not in token_vals:
-	 				token_vals.append(word.lower())
+				word = word.lower()
+				word = word.translate(None, "()")
+	 			if word not in token_vals:
+	 				token_vals.append(word)
 	for poem in shak:
 		temp = []
 		for line in poem:
 			for word in line.split():
-				temp.append(token_vals.index(word.lower()))
+				word = word.lower()
+				word = word.translate(None, "()")
+				temp.append(token_vals.index(word))
 		
 		observations.append(temp)
 
 	for poem in spen:
 		for line in poem:
 			for word in line.split():
-	 			if word.lower() not in token_vals:
-	 				token_vals.append(word.lower())
+				word = word.lower()
+				word = word.translate(None, "()")
+	 			if word not in token_vals:
+	 				token_vals.append(word)
 	for poem in spen:
 		temp = []
 		for line in poem:
 			for word in line.split():
-				temp.append(token_vals.index(word.lower()))
+				word = word.lower()
+				word = word.translate(None, "()")
+				temp.append(token_vals.index(word))
 		observations.append(temp)
 
-	return token_vals, observations
-
-def parseTok(f1, f2):
-	token_vals = []
-	observations = []
-	shak = parse(f1)
-	spen = parse(f2)
-	for poem in shak:
-		for line in poem:
-			for word in line.split():
-	 			if word.lower() not in token_vals:
-	 				token_vals.append(word.lower())
-	for poem in spen:
-		for line in poem:
-	 		for word in line.split():
-	 			if word.lower() not in token_vals:
-	 				token_vals.append(word.lower())
-
-	for poem in shak:
-		temp = []
-		for line in poem:
-			for word in line.split():
-				temp.append(token_vals.index(word.lower()))
-		
-		observations.append(temp)
-
-	for poem in spen:
-		temp = []
-		for line in poem:
-			for word in line.split():
-				temp.append(token_vals.index(word.lower()))
-		observations.append(temp)
 	return token_vals, observations
 
 def parseSyll(f1, f2):
