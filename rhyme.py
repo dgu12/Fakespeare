@@ -176,7 +176,7 @@ def rhymeGen(A, O, tokens, rhyme):
 	# Create a 14 line sonnet.
 	poem = [[] for i in range(14)]
 	# Now choose our end rhymes:
-	random.seed(0)
+	random.seed()
 	# a pair
 	l = random.choice(rhyme)
 	pair = random.sample(l, 2)
