@@ -92,25 +92,50 @@ def parseTokLimMin(f1, numPoem1, f2, numPoem2, numPoemChoose):
     min_tok_vals = sys.maxint
     best_combo = None
     best_token_vals = None
+    best_token_ind = None
     best_observations = None
     for combo in itertools.combinations(all_poem, numPoemChoose):
-        token_vals = []
+        token_vals = {}
+        token_ind = {}
         observations = []
+        index = 0
         for poem in combo:
             temp = []
             for line in poem:
                 for word in line.split():
-                    if word.lower() not in token_vals:
-                        token_vals.append(word.lower())
-                    temp.append(token_vals.index(word.lower()))
+                    w = word.lower()
+                    if w not in token_vals:
+                        token_vals[w] = index
+                        token_ind[index] = w
+                        index += 1
+                    temp.append(token_vals[w])
             observations.append(temp)
         if len(token_vals) < min_tok_vals:
             min_tok_vals = len(token_vals)
             best_combo = combo
             best_token_vals = token_vals
+            best_token_ind = token_ind
             best_observations = observations
 
-    return best_token_vals, best_observations
+    token_vals = []
+    for i in range(len(best_token_vals)):
+        token_vals.append(best_token_ind[i])
+
+    f = open(str(numPoemChoose) + '.txt', 'w')
+
+    f.write('Tokens\n')
+    for i in range(len(token_vals)):
+        f.write(token_vals[i] + '\n')
+
+    f.write('Observations\n')
+    for i in range(len(best_observations)):
+        for j in range(len(best_observations[i])):
+            f.write(str(best_observations[i][j]) + '\n')
+        f.write('\n')
+
+    f.close()
+
+    return token_vals, best_observations
 
 def parseTok(f1, f2):
     token_vals = []

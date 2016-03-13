@@ -14,8 +14,8 @@ def signal_handler(signal, frame):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print 'Usage: python', sys.argv[0], '[num hidden states]'
+    if len(sys.argv) != 3:
+        print 'Usage: python', sys.argv[0], '[num hidden states] [output_filename]'
         return -1
     else:
         num_states = int(sys.argv[1])
@@ -23,8 +23,9 @@ def main():
     eps = 0.005
     
     signal.signal(signal.SIGINT, signal_handler)
-    token_vals, obs_seq = parseTokLimMin('shakespeare.txt', -1, 'spenser.txt', 0, 3)
+    token_vals, obs_seq = parseTokLimMin('shakespeare.txt', 100, 'spenser.txt', 0, 4)
 
+    num_states = int(len(token_vals) / 2)
 
     num_obs = len(token_vals)
     
@@ -86,7 +87,7 @@ def main():
         print 'diff is ', diff
         print 'diff/first_diff is', diff/first_diff
 
-    f = open(sys.argv[1]+'_with_start_fixed.txt', 'w')
+    f = open(sys.argv[2]+'.txt', 'w')
 
     f.write('true\n')
     f.write(str(num_states) + '\n')
@@ -117,7 +118,7 @@ def main():
     f.close()
 
     hmmGenerate(A, O, token_vals, start)
-    print 'done with', sys.argv[1], 'with start'
+    print 'done with', sys.argv[2]
 
 
 def latex_matrix(matrix):
