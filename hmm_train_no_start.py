@@ -1,8 +1,16 @@
 import numpy as np
 import random
 import sys
+import signal
 from shakespeare import *
 from genPoem import hmmGenerate
+
+kill = False
+
+def signal_handler(signal, frame):
+    print 'You pressed Ctrl+C! Gonna stop and save matrices after this step.'
+    global kill
+    kill = True
 
 
 def main():
@@ -12,10 +20,10 @@ def main():
     else:
         num_states = int(sys.argv[1])
 
-    eps = 0.01
-    #token_vals, obs_seq = parseTok('shakespeare.txt', 'spenser.txt')
-
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', 40, 'spenser.txt', 40)
+    eps = 0.001
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 5, 'spenser.txt', 0)
 
     num_obs = len(token_vals)
     
@@ -37,10 +45,13 @@ def main():
         # make each row sum to 1
         O[i][:] = O[i][:] / np.sum(O[i][:])
 
+    start = np.ones(num_states) / num_states
+
     prev_A = A
     prev_O = O
 
-    gamma, xi = eStep(num_states, obs_seq, A, O)
+    gamma, xi = eStep(start, num_states, obs_seq, A, O)
+
     A, O = mStep(num_states, gamma, xi, obs_seq, num_obs)
 
     diff = np.linalg.norm(np.subtract(prev_A, A)) + np.linalg.norm(np.subtract(prev_O, O))
@@ -48,10 +59,11 @@ def main():
 
     print 'diff is ', diff
 
-    while diff/first_diff > eps:
+    while diff/first_diff > eps and not kill:
         prev_A = A
         prev_O = O
-        gamma, xi = eStep(num_states, obs_seq, A, O)
+        gamma, xi = eStep(start, num_states, obs_seq, A, O)
+
         A, O = mStep(num_states, gamma, xi, obs_seq, num_obs)
         diff = np.linalg.norm(np.subtract(prev_A, A)) + np.linalg.norm(np.subtract(prev_O, O))
 
@@ -59,6 +71,17 @@ def main():
         print 'diff/first_diff is', diff/first_diff
 
     f = open(sys.argv[1]+'_no_start.txt', 'w')
+
+    f.write('false\n')
+    f.write(str(num_states) + '\n')
+    f.write(str(num_obs) + '\n\n')
+
+
+    f.write('Tokens\n')
+    for i in range(num_obs):
+        f.write(str(token_vals[i])+'\n')
+    f.write('\n')
+
     f.write('A\n')
     for i in range(num_states):
         for j in range(num_states):
@@ -72,6 +95,7 @@ def main():
         f.write('\n')
 
     f.close()
+
     hmmGenerate(A, O, token_vals)
     print 'done with', sys.argv[1], 'without start'
 
@@ -98,6 +122,7 @@ def mStep(num_states, gamma, xi, obs_seq, num_obs):
             num = 0
             den = 0
             for o in range(len(obs_seq)):
+                print 'j is', j, 'i is', i, 'o is',o
                 num += np.sum(xi[o][:len(obs_seq[o])-2][i][j])
                 den += np.sum(gamma[o][:len(obs_seq[o])-2][i])
             A[i][j] = num / den
@@ -119,7 +144,7 @@ def mStep(num_states, gamma, xi, obs_seq, num_obs):
 
     return A, O
 
-def eStep(num_states, obs_seq, A, O):
+def eStep(start, num_states, obs_seq, A, O):
     # probability of being in state i at time t given the observed sequence
     # and parameters
     gamma = np.zeros([len(obs_seq), max(len(obs) for obs in obs_seq), num_states]) 
@@ -130,7 +155,7 @@ def eStep(num_states, obs_seq, A, O):
     for obs_num in range(len(obs_seq)):
         obs = obs_seq[obs_num]
 
-        alpha = forward(num_states, obs, A, O)
+        alpha = forward(start, num_states, obs, A, O)
         beta = backward(num_states, obs, A, O)
         
 
@@ -159,7 +184,7 @@ def eStep(num_states, obs_seq, A, O):
 
 
 
-def forward(num_states, obs, A, O):
+def forward(start, num_states, obs, A, O):
     """Computes the probability a given HMM emits a given observation using the
         forward algorithm. This uses a dynamic programming approach, and uses
         the 'prob' matrix to store the probability of the sequence at each length.
@@ -176,7 +201,8 @@ def forward(num_states, obs, A, O):
     # initializes uniform state distribution, factored by the
     # probability of observing the sequence from the state (given by the
     # observation matrix)
-    prob[0] = [(1. / num_states) * O[j][obs[0]] for j in range(num_states)]
+    for i in range(num_states):
+        prob[0][i] = 1./num_states * O[i][obs[0]]
 
     # We iterate through all indices in the data
     for length in range(1, len_):   # length + 1 to avoid initial condition
@@ -204,7 +230,7 @@ def backward(num_states, obs, A, O):
     # stores p(seqence)
     prob = np.ones([len_, num_states])
 
-    for length in range(len_-2, -1, -1):   # length + 1 to avoid initial condition
+    for length in range(len_-2, -1, -1):   
         for state in range(num_states):
             # stores the probability of transitioning to 'state'
             p_trans = 0

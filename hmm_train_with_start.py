@@ -85,7 +85,7 @@ def main():
         print 'diff is ', diff
         print 'diff/first_diff is', diff/first_diff
 
-    f = open(sys.argv[1]+'_with_start.txt', 'w')
+    f = open(sys.argv[1]+'_with_start_fixed.txt', 'w')
 
     f.write('true\n')
     f.write(str(num_states) + '\n')
