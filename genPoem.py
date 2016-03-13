@@ -5,19 +5,30 @@ import sys
 from visualize import *
 from rhyme import *
 
-def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
+''' This file contains functions for generating poems from an HMM description
+'''
 
+def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
+    ''' Generates a poem from a HMM's A matrix and O matrix
+        Inputs:
+            A_Mat: np matrix representing state transition probabilities
+            O_Mat: np matrix representing observation emission probabilities
+            tokens: Array of words, used to translate tokens into words
+            *startP: Optional array of start state probabilities
+    '''
+    # Allows you prompt the user to generate more poems
     user_input = 'y'
     while (user_input != 'n'):
-        # Assuming A_Mat and O_Mat are np matrices
+        # pyHyphen object that allows you to separate words into syllables
         h_en = Hyphenator('en_US')
         numStates = len(A_Mat)
         numObs = np.shape(O_Mat)[1]
-        #random.seed(0)
         state = 0
+        # If no start probs, assume uniform start distribution
         if startP == None:
             state = random.randint(0, numStates-1)
         else:
+            # Use startP to determine the start base
             sumP = 0
             prob = random.random()
             index = 0
@@ -29,9 +40,11 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
                 index += 1
         poem = []
         capitalize = False
+        # A sonnet is 14 lines
         for l in range(0,14):
             numSyl = 0
             line = []
+            # Keep number of syllables per line about 10
             while numSyl < 10:
                 prob = random.random()
                 ind = 0
@@ -39,7 +52,6 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
                 if numSyl == 0:
                     capitalize = True
                 while ind < numObs:
-                    
                     sumP += O_Mat[state][ind]
                     if sumP > prob:
                         # Emit this observation
@@ -47,14 +59,17 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
                             line.append(tokens[ind].capitalize())
                             capitalize = False
                         else:
+                            # Capitalize I
                             if tokens[ind] == "i":
                                 line.append("I")
                             else:
                                 line.append(tokens[ind])
-
-                        if tokens[ind].endswith(".") or tokens[ind].endswith("?"):
+                        # Capitalize after ending punctuation
+                        if tokens[ind].endswith(".") or \
+                            tokens[ind].endswith("?") or \
+                            tokens[ind].endswith("!"):
                             capitalize = True
-
+                        # Default to one syllable
                         if len(h_en.syllables(unicode(tokens[ind]))) == 0:
                             numSyl += 1
                         else:
@@ -73,15 +88,18 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
                     ind += 1
             poem.append(line)
 
-        #Print line
+        #Print poem
         for line in poem:
             print ' '.join(line)
         print '\n'
 
+        # Print part of speech visualization info
         visualize("noun", O_Mat, tokens)
         print '\n'
         visualize("verb", O_Mat, tokens)
         print '\n'
+
+        # Prompt to generate more poems
         user_input = raw_input('Generate a another poem? [y/n]')
 
 def genFromFile(f, rhyme):
@@ -159,7 +177,7 @@ def genFromFile(f, rhyme):
         poem = rhymeGen(A_Mat, O_Mat, tokens, rhymeLim)
         # Now print the poem.
         for line in poem:
-            print ' '.join(line).capitalize()
+            print ' '.join(line)
         print '\n'
 
 def main():
