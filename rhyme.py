@@ -5,7 +5,6 @@ import numpy as np
 import random
 import sys
 import shakespeare
-from visualize import *
 
 def addPair(rhyme, r1, r2):
     '''Adds the pair r1 to r2 to the rhyming dictionary, or doesn't change it
