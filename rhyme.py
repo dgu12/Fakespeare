@@ -160,7 +160,7 @@ def rhymeGen(A, O, tokens, rhyme):
         numSyl = 0
         # First, randomly choose a state for the given token.
         tok = tokens.index(poem[i][0])
-        numSyl = len(h_en.syllables(unicode(tok)))
+        numSyl = len(h_en.syllables(unicode(poem[i][0])))
         if numSyl == 0:
             numSyl = 1
         dist = [row[tok] for row in O]
