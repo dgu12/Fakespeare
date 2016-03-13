@@ -1,6 +1,6 @@
 \input{projectpreamble}
 
-\head{%
+\chead{%
   {\vbox{%
       \vspace{2mm}
       \large
@@ -35,7 +35,7 @@ In this project, we wanted to learn a generative model which can write Shakespea
 \par Daniel wrote some parsing code as well as used an off-the-shelf implementation of unsupervised training for HMMs (nltk.tag.hmm) to look for the best number of hidden states, and wrote the code to create rhyming poems. [TODO: add what Eve and Victor did.]
 
 
-\section{Data Manipulation}
+\section{Data Manipulation/Preprocessing}
 Given text files of Shakespeare and Spenser's sonnets, we parsed them into individual poems, which was represented as a list of its words in order. We also did parsing of poems into sequences of syllables. [TODO: discuss more preprocessing]. This seemed best since lines are too coarse a level of granularity, and parsing words could allow our model to capture parts of the structure such as the meter. [TODO: other stuff?]
 
 \section{Learning Algorithm}
