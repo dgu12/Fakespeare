@@ -20,10 +20,10 @@ def main():
     else:
         num_states = int(sys.argv[1])
 
-    eps = 0.0001
+    eps = 0.001
     
     signal.signal(signal.SIGINT, signal_handler)
-    token_vals, obs_seq = parseTokLim('shakespeare.txt', -1, 'spenser.txt', -1)
+    token_vals, obs_seq = parseTokLim('shakespeare.txt', 10, 'spenser.txt', 0)
 
     num_obs = len(token_vals)
     
@@ -220,7 +220,7 @@ def forward(start, num_states, obs, A, O):
     # probability of observing the sequence from the state (given by the
     # observation matrix)
     for i in range(num_states):
-        prob[0][i] = start[i] * O[i][obs[0]] + 1./num_states
+        prob[0][i] = (start[i] + 0.1/num_states) * O[i][obs[0]] 
     prob0_sum = 0;
     for i in range(num_states):
         prob0_sum += prob[0][i]
