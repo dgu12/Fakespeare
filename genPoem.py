@@ -3,6 +3,7 @@ import numpy as np
 import random
 import sys
 from visualize import *
+from rhyme import *
 
 def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
 
@@ -75,7 +76,6 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         #Print line
         for line in poem:
             print ' '.join(line)
-            print '\n'
         print '\n'
 
         visualize("noun", O_Mat, tokens)
@@ -84,7 +84,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         print '\n'
         user_input = raw_input('Generate a another poem? [y/n]')
 
-def genFromFile(f):
+def genFromFile(f, rhyme):
     data = open(f)
     
     isO = False
@@ -149,14 +149,27 @@ def genFromFile(f):
                 if Arow == numStates:
                     isO = True
     data.close
-    hmmGenerate(A_Mat, O_Mat, tokens, S_Mat)
+    if rhyme == 1:
+        hmmGenerate(A_Mat, O_Mat, tokens, S_Mat)
+    else:
+        rhyme1 = rhymingDict("shakespeare.txt")
+        rhyme2 = rhymingDict("spenser.txt")
+        rhyme = rhyme1 + rhyme2
+        rhymeLim = rhymeDictLim(tokens, rhyme)
+        poem = rhymeGen(A_Mat, O_Mat, tokens, rhymeLim)
+        # Now print the poem.
+        for line in poem:
+            print ' '.join(line)
+        print '\n'
+
 def main():
-    if len(sys.argv) != 2:
-        print 'Usage: python', sys.argv[0], '[file name]'
+    if len(sys.argv) != 3:
+        print 'Usage: python', sys.argv[0], '[file name] [1 - naive, 0 - rhyme]'
         return -1
     else:
         file = sys.argv[1]
-    genFromFile(file)
+        rhyme = int(sys.argv[2])
+    genFromFile(file, rhyme)
     
 if __name__ == '__main__':
     main()

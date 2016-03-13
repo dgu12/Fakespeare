@@ -105,7 +105,7 @@ def addPair(rhyme, r1, r2):
 # abab bcbc cdcd ee
 # but we will ignore the repeated rhymes, sacrificing a larger dictionary for
 # ease of parsing.
-def rhymingDict(filename, numPoem):
+def rhymingDict(filename):
 	'''Parses a source file f (i.e., a corpus) and returns a list of lists:
 	each element of our outer list is a list which holds an rhyming equivalence
 	class; that is, every word in the list rhymes with every other word.'''
@@ -115,18 +115,12 @@ def rhymingDict(filename, numPoem):
 	rhyme = []
 	poem = []
 	first = True
-	p = 0
 	for line in f:
 		line = line.strip() # Remove whitespace.
 		if len(line.split()) == 1:
 			# Start a new poem.
 			if first:
 				first = False
-				p += 1
-				if numPoem != -1:
-					if p > numPoem:
-						return rhyme
-
 			else:
 				# Process the current poem to add to our rhyme dictionary.
 				if len(poem) == 14:
@@ -156,6 +150,18 @@ def rhymingDict(filename, numPoem):
 		elif len(line.split()) != 0:
 			poem.append(line.split())
 	return rhyme
+
+def rhymeDictLim(tokens, dict):
+	rhyme = []
+	for p in dict:
+		rhymePair = []
+		for w in p:
+			if w in tokens:
+				rhymePair.append(w)
+		if len(rhymePair) >= 2:
+			rhyme.append(rhymePair)
+	return rhyme
+
 
 def choose(dist):
 	'''Given a possibly unnormalized probability distribution dist over states,
@@ -242,7 +248,7 @@ def rhymeGen(A, O, tokens, rhyme):
 		poem[i].reverse()
 	return poem
 
-def genFromFile(filename, tokens, rhyme):
+def genFromFileR(filename, tokens, rhyme):
 	'''Given a file holding the A and O matrices of a trained HMM, generates
 	and prints a poem.'''
 	A, O = parseFile(filename)
@@ -261,4 +267,5 @@ if __name__ == '__main__':
 	    rhyme1 = rhymingDict("shakespeare.txt")
 	    rhyme2 = rhymingDict("spenser.txt")
 	    rhyme = rhyme1 + rhyme2
-	    genFromFile(filename, tokens, rhyme)
+	    rhymeLim = rhymeDictLim(tokens, rhyme)
+	    genFromFileR(filename, tokens, rhymeLim)
