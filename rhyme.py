@@ -7,75 +7,6 @@ import sys
 import shakespeare
 from visualize import *
 
-def parseFile(f):
-	'''Given a file f which contains the A and O matrices which characterize
-	a firt-order HMM, parses it and returns the A and O matrices.'''
-	data = open(f)
-	
-	isO = False
-	hasStart = False
-	S_Mat = None
-	temp = data.readline()
-	numStates = int(data.readline())
-	numObs = int(data.readline())
-
-	if temp.strip() == "true":
-	    hasStart = True
-	    S_Mat = np.zeros(numStates)
-
-	A_Mat = np.zeros((numStates, numStates))
-	O_Mat = np.zeros((numStates, numObs))
-	
-	tokens = []
-	Arow = 0
-	Acol = 0
-	Orow = 0
-	Ocol = 0
-	Srow = 0
-	Trow = 0
-	isTokens = True
-	for line in data:
-	    line = line.strip()
-	    if line == "":
-	        continue
-	    if hasStart == True:
-	        if line == "Start" :
-	            continue
-	        S_Mat[Srow] = float(line)
-	        Srow += 1
-	        if Srow == numStates:
-	            hasStart = False
-	        continue
-	    if isTokens == True:
-	        if line == "Tokens":
-	            continue
-	        tokens.append(line)
-	        Trow += 1
-	        if Trow == numObs:
-	            isTokens = False
-	        continue
-	    if line == "A":
-	        continue
-	    if line == "O":
-	        isO = True
-	        continue
-	    if isO == True:
-	        O_Mat[Orow][Ocol] = float(line)
-	        Ocol += 1
-	        if Ocol == numObs:
-	            Ocol = 0
-	            Orow += 1
-	    else:
-	        A_Mat[Arow][Acol] = float(line)
-	        Acol += 1
-	        if Acol == numStates:
-	            Acol = 0
-	            Arow += 1
-	            if Arow == numStates:
-	                isO = True
-	data.close
-	return A_Mat, O_Mat
-
 def addPair(rhyme, r1, r2):
 	'''Adds the pair r1 to r2 to the rhyming dictionary, or doesn't change it
 	if they are already in it.'''
@@ -247,25 +178,3 @@ def rhymeGen(A, O, tokens, rhyme):
 		# Reverse our list when we're done, since we generated it backwards.
 		poem[i].reverse()
 	return poem
-
-def genFromFileR(filename, tokens, rhyme):
-	'''Given a file holding the A and O matrices of a trained HMM, generates
-	and prints a poem.'''
-	A, O = parseFile(filename)
-	poem = rhymeGen(A, O, tokens, rhyme)
-	# Now print the poem.
-	for line in poem:
-		print ' '.join(line)
-	print '\n'
-
-if __name__ == '__main__':
-	if len(sys.argv) != 2:
-	    print 'Usage: python', sys.argv[0], '[file name]'
-	else:
-	    filename = sys.argv[1]
-	    tokens, obs = shakespeare.parseTokLim("shakespeare.txt", -1, "spenser.txt", -1)
-	    rhyme1 = rhymingDict("shakespeare.txt")
-	    rhyme2 = rhymingDict("spenser.txt")
-	    rhyme = rhyme1 + rhyme2
-	    rhymeLim = rhymeDictLim(tokens, rhyme)
-	    genFromFileR(filename, tokens, rhymeLim)
