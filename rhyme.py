@@ -226,7 +226,7 @@ def rhymeGen(A, O, tokens, rhyme):
 			state = choose(sdist) # state now holds the new (previous) state.
 			# Now choose a token to emit from 1 state.
 			tdist = O[state]
-			token = tokens[choose(sdist)]
+			token = tokens[choose(tdist)]
 			poem[i].append(token)
 			if len(h_en.syllables(unicode(token))) == 0:
 			    numSyl += 1
