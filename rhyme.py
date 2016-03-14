@@ -5,6 +5,7 @@ import numpy as np
 import random
 import sys
 import shakespeare
+from visualize import *
 
 def addPair(rhyme, r1, r2):
     '''Adds the pair r1 to r2 to the rhyming dictionary, or doesn't change it
@@ -115,83 +116,102 @@ def rhymeGen(A, O, tokens, rhyme):
     specified by the A and O matrices. First picks the end rhyme and then
     generates each line backwards until it has 10 syllables.'''
     h_en = Hyphenator('en_US')
-    # Create a 14 line sonnet.
-    poem = [[] for i in range(14)]
-    # Now choose our end rhymes:
-    random.seed()
-    # a pair
-    l = random.choice(rhyme)
-    pair = random.sample(l, 2)
-    poem[0].append(pair[0])
-    poem[2].append(pair[1])
-    # b pair
-    l = random.choice(rhyme)
-    pair = random.sample(l, 2)
-    poem[1].append(pair[0])
-    poem[3].append(pair[1])
-    # c pair
-    l = random.choice(rhyme)
-    pair = random.sample(l, 2)
-    poem[4].append(pair[0])
-    poem[6].append(pair[1])
-    # d pair
-    l = random.choice(rhyme)
-    pair = random.sample(l, 2)
-    poem[5].append(pair[0])
-    poem[7].append(pair[1])
-    # e pair
-    l = random.choice(rhyme)
-    pair = random.sample(l, 2)
-    poem[8].append(pair[0])
-    poem[10].append(pair[1])
-    # f pair
-    l = random.choice(rhyme)
-    pair = random.sample(l, 2)
-    poem[9].append(pair[0])
-    poem[11].append(pair[1])
-    # g pair
-    l = random.choice(rhyme)
-    pair = random.sample(l, 2)
-    poem[12].append(pair[0])
-    poem[13].append(pair[1])
-    # Now generate each line backwards.
-    for i in range(14):
-        numSyl = 0
-        # First, randomly choose a state for the given token.
-        tok = tokens.index(poem[i][0])
-        numSyl = len(h_en.syllables(unicode(poem[i][0])))
-        if numSyl == 0:
-            numSyl = 1
-        dist = [row[tok] for row in O]
-        state = choose(dist)
-        # Now generate the rest of the line, keeping track of syllables.
-        while numSyl < 10:
-            # Choose a state to transition to.
-            sdist = [row[state] for row in A]
-            state = choose(sdist) # state now holds the new (previous) state.
-            # Now choose a token to emit from 1 state.
-            tdist = O[state]
-            token = tokens[choose(tdist)]
-            # Capitalize I
-            if token == "i":
-                token = "I";
-            poem[i].append(token)
-            if len(h_en.syllables(unicode(token))) == 0:
-                numSyl += 1
-            else:
-                numSyl += len(h_en.syllables(unicode(token)))
-        # Reverse our list when we're done, since we generated it backwards.
-        poem[i].reverse()
-        capitalize = True
-        temp = []
-        # Capitalize things correctly after reversing line
-        for w in poem[i]:
-            if capitalize == True:
-                temp.append(w.capitalize())
-                capitalize = False
-            else:
-                temp.append(w)
-            if w.endswith(".") or w.endswith("!") or w.endswith("?"):
-                capitalize = True
-        poem[i] = temp
-    return poem
+    user_input = 'y'
+    while (user_input != 'n'):
+        # Create a 14 line sonnet.
+        poem = [[] for i in range(14)]
+        # Now choose our end rhymes:
+        random.seed()
+        # a pair
+        l = random.choice(rhyme)
+        pair = random.sample(l, 2)
+        poem[0].append(pair[0])
+        poem[2].append(pair[1])
+        # b pair
+        l = random.choice(rhyme)
+        pair = random.sample(l, 2)
+        poem[1].append(pair[0])
+        poem[3].append(pair[1])
+        # c pair
+        l = random.choice(rhyme)
+        pair = random.sample(l, 2)
+        poem[4].append(pair[0])
+        poem[6].append(pair[1])
+        # d pair
+        l = random.choice(rhyme)
+        pair = random.sample(l, 2)
+        poem[5].append(pair[0])
+        poem[7].append(pair[1])
+        # e pair
+        l = random.choice(rhyme)
+        pair = random.sample(l, 2)
+        poem[8].append(pair[0])
+        poem[10].append(pair[1])
+        # f pair
+        l = random.choice(rhyme)
+        pair = random.sample(l, 2)
+        poem[9].append(pair[0])
+        poem[11].append(pair[1])
+        # g pair
+        l = random.choice(rhyme)
+        pair = random.sample(l, 2)
+        poem[12].append(pair[0])
+        poem[13].append(pair[1])
+        # Now generate each line backwards.
+        statePath = []
+        for i in range(14):
+            numSyl = 0
+            # First, randomly choose a state for the given token.
+            tok = tokens.index(poem[i][0])
+            numSyl = len(h_en.syllables(unicode(poem[i][0])))
+            if numSyl == 0:
+                numSyl = 1
+            dist = [row[tok] for row in O]
+            state = choose(dist)
+            stateTemp = [state]
+            # Now generate the rest of the line, keeping track of syllables.
+            while numSyl < 10:
+                # Choose a state to transition to.
+                sdist = [row[state] for row in A]
+                state = choose(sdist) # state now holds the new (previous) state.
+                # Now choose a token to emit from 1 state.
+                stateTemp.append(state)
+                tdist = O[state]
+                token = tokens[choose(tdist)]
+                # Capitalize I
+                if token == "i":
+                    token = "I";
+                poem[i].append(token)
+                if len(h_en.syllables(unicode(token))) == 0:
+                    numSyl += 1
+                else:
+                    numSyl += len(h_en.syllables(unicode(token)))
+            # Reverse our list when we're done, since we generated it backwards.
+            poem[i].reverse()
+            stateTemp = stateTemp[::-1]
+            statePath.append(stateTemp)
+            capitalize = True
+            temp = []
+            # Capitalize things correctly after reversing line
+            for w in poem[i]:
+                if capitalize == True:
+                    temp.append(w.capitalize())
+                    capitalize = False
+                else:
+                    temp.append(w)
+                if w.endswith(".") or w.endswith("!") or w.endswith("?"):
+                    capitalize = True
+            poem[i] = temp
+        # Display the poem
+        for line in poem:
+            print ' '.join(line)
+        print '\n'
+
+        # Print analytics if verbose option
+        if user_input == 'v':
+            for l in statePath:
+                print l
+            print  '\n'
+            visualize(O, tokens)
+        user_input = raw_input('Generate a another poem? [y/n/v]')
+

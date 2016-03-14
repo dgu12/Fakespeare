@@ -99,20 +99,21 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
             print ' '.join(line)
         print '\n'
 
-        print 'State sequence'
-        for l in statePath:
-            print l
-        print '\n'
+        # Verbose option to print analytics
+        if user_input == 'v':
+            print 'State sequence'
+            for l in statePath:
+                print l
+            print '\n'
 
-        # Print part of speech visualization info
-        #visualize( O_Mat, tokens)
+            # Print part of speech visualization info
+            visualize( O_Mat, tokens)
 
         # Prompt to generate more poems
-        user_input = raw_input('Generate a another poem? [y/n]')
+        user_input = raw_input('Generate a another poem? [y/n/v]')
 
 def genFromFile(f, rhyme):
     data = open(f)
-    
     isO = False
     hasStart = False
     S_Mat = None
@@ -182,12 +183,8 @@ def genFromFile(f, rhyme):
         rhyme2 = rhymingDict("spenser.txt")
         rhyme = rhyme1 + rhyme2
         rhymeLim = rhymeDictLim(tokens, rhyme)
-        poem = rhymeGen(A_Mat, O_Mat, tokens, rhymeLim)
-        # Now print the poem.
-        for line in poem:
-            print ' '.join(line)
-        print '\n'
-        visualize(O_Mat, tokens)
+        rhymeGen(A_Mat, O_Mat, tokens, rhymeLim)
+        
 
 def main():
     ''' Run this program from the command to generate a poem from an HMM 
