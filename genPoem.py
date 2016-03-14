@@ -114,7 +114,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
 
 def genFromFile(f, rhyme):
     data = open(f)
-    
+    d
     isO = False
     hasStart = False
     S_Mat = None
