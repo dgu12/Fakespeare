@@ -99,16 +99,18 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
             print ' '.join(line)
         print '\n'
 
-        print 'State sequence'
-        for l in statePath:
-            print l
-        print '\n'
+        # Verbose option to print analytics
+        if user_input == 'v':
+            print 'State sequence'
+            for l in statePath:
+                print l
+            print '\n'
 
-        # Print part of speech visualization info
-        visualize( O_Mat, tokens)
+            # Print part of speech visualization info
+            visualize( O_Mat, tokens)
 
         # Prompt to generate more poems
-        user_input = raw_input('Generate a another poem? [y/n]')
+        user_input = raw_input('Generate a another poem? [y/n/v]')
 
 def genFromFile(f, rhyme):
     data = open(f)
