@@ -24,6 +24,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         numStates = len(A_Mat)
         numObs = np.shape(O_Mat)[1]
         state = 0
+        statePath = []
         # If no start probs, assume uniform start distribution
         if startP == None:
             state = random.randint(0, numStates-1)
@@ -44,8 +45,10 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         for l in range(0,14):
             numSyl = 0
             line = []
+            stateTemp = [state]
             # Keep number of syllables per line about 10
             while numSyl < 10:
+                
                 prob = random.random()
                 ind = 0
                 sumP = 0
@@ -76,21 +79,29 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
                             numSyl += len(h_en.syllables(unicode(tokens[ind])))
                         break
                     ind += 1
-                # Transition to the next state
-                prob = random.random()
-                ind = 0
-                sumP = 0
-                while ind < numStates:
-                    sumP += A_Mat[state][ind]
-                    if sumP > prob:
-                        state = ind
-                        break
-                    ind += 1
+                if numSyl < 10:
+                    # Transition to the next state
+                    prob = random.random()
+                    ind = 0
+                    sumP = 0
+                    while ind < numStates:
+                        sumP += A_Mat[state][ind]
+                        if sumP > prob:
+                            stateTemp.append(ind)
+                            state = ind
+                            break
+                        ind += 1
             poem.append(line)
+            statePath.append(stateTemp)
 
         #Print poem
         for line in poem:
             print ' '.join(line)
+        print '\n'
+
+        print 'State sequence'
+        for l in statePath:
+            print l
         print '\n'
 
         # Print part of speech visualization info
@@ -98,6 +109,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         print '\n'
         visualize("verb", O_Mat, tokens)
         print '\n'
+        visualize("article", O_Mat, tokens)
 
         # Prompt to generate more poems
         user_input = raw_input('Generate a another poem? [y/n]')
@@ -181,8 +193,13 @@ def genFromFile(f, rhyme):
         print '\n'
 
 def main():
+    ''' Run this program from the command to generate a poem from an HMM 
+        train file'''
     if len(sys.argv) != 3:
-        print 'Usage: python', sys.argv[0], '[file name] [1 - naive, 0 - rhyme]'
+        # Use 1 to generate an unrhyming poem
+        # Use 0 to generate a rhyming poem
+        print 'Usage: python', sys.argv[0], \
+                '[file name] [1 - naive, 0 - rhyme]'
         return -1
     else:
         file = sys.argv[1]

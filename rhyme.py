@@ -173,6 +173,7 @@ def rhymeGen(A, O, tokens, rhyme):
             # Now choose a token to emit from 1 state.
             tdist = O[state]
             token = tokens[choose(tdist)]
+            # Capitalize I
             if token == "i":
                 token = "I";
             poem[i].append(token)
@@ -184,6 +185,7 @@ def rhymeGen(A, O, tokens, rhyme):
         poem[i].reverse()
         capitalize = True
         temp = []
+        # Capitalize things correctly after reversing line
         for w in poem[i]:
             if capitalize == True:
                 temp.append(w.capitalize())

@@ -9,8 +9,13 @@ kill = False
 
 def signal_handler(signal, frame):
     print 'You pressed Ctrl+C! Gonna stop and save matrices after this step.'
+    print 'Note: depending on training parameters, this may take a while.'
+    print 'If you are in a hurry, press Ctrl+C again to immediately kill.'
     global kill
-    kill = True
+    if kill == False:
+        kill = True
+    else:
+        sys.exit()
 
 
 def main():

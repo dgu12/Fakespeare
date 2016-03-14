@@ -35,7 +35,7 @@ In this project, we wanted to learn a generative model which can write Shakespea
 \par Daniel wrote some parsing code as well as used an off-the-shelf implementation of unsupervised training for HMMs (nltk.tag.hmm) to look for the best number of hidden states, and wrote the code to create rhyming poems. [TODO: add what Eve and Victor did.]
 
 
-\section{Data Manipulation/Preprocessing}
+\section{Data Manipulation}
 Given text files of Shakespeare and Spenser's sonnets, we parsed them into individual poems, which was represented as a list of its words in order. We also did parsing of poems into sequences of syllables. [TODO: discuss more preprocessing]. This seemed best since lines are too coarse a level of granularity, and parsing words could allow our model to capture parts of the structure such as the meter. [TODO: other stuff?]
 
 \section{Learning Algorithm}
@@ -57,6 +57,32 @@ We can then repeat this until it converges. For our implementation, we stopped w
 \section{Model Selection}
 We didn't do anything too sophisticated to do model selection; we trained our HMMs with different numbers of hidden states, and then examined the poems and chose the number of hidden states which made the poems we thought were qualitatively best. Due to the time required to do unsupervised HMM training with large numbers of hidden states, we limited our search to numbers of hidden states below 17. [TODO: verify and discuss more if necessary].
 
+\section{Visualization}
+\begin{tabular}{|c|c|c|c|}
+\hline 
+State & Noun & Verb & Article \\ 
+\hline 
+0 & 0.53 & 0.30 & 0.00 \\ 
+\hline 
+1 & 0.12 & 0.07 & 0.00 \\ 
+\hline 
+2 & 0.48 & 0.36 & 0.10 \\ 
+\hline 
+3 & 0.23 & 0.07 & 0.19 \\ 
+\hline 
+4 & 0.51 & 0.31 & 0.00 \\ 
+\hline 
+5 & 0.10 & 0.05 & 0.00 \\ 
+\hline 
+6 & 0.17 & 0.13 & 0.00 \\ 
+\hline 
+7 & 0.28 & 0.14 & 0.00 \\ 
+\hline 
+\end{tabular} 
+
+We trained essentially two kinds of HMMs: Part of speech modeling HMM and word modeling HMM. For the former, we trained with numbers of hidden states close to the number of parts of speech (8) in English. For the latter, we used large numbers of hidden states, equal to some fraction of the number of unique words present in the poems we used to train the HMM.  For the 8 state HMM, we expected to see some states have high probability of emitting nouns, others verbs and particles. However, as demonstrated by the chart above, we saw multiple states have higher probabilities of emitting all three part of speech types compared to other states. This may be the result of the imperfect methods we use to visualize nouns and verbs however. We determined that there is no good way of determining if a single word, without any context, is a noun or a verb. The method we use is to check words against a large database of already tagged words (specifically nltk's wordnet corpus). However, the corpus we use only has 60k nouns and probably does not include a lot of the older terms used in these poems. Interestingly, state 3 in the chart has a much higher probability of emitting articles compared to other states, and lower probability of emitting nouns and verbs compared to other states. This may indicate that state 3 represents particles. 
+
+For the word modeling HMM, many of the states had 0 or 100 percent emission probability of a noun, verb, or article. This makes sense if each state represents a particular word. 
 \section{Conclusion}
 [TODO: discuss poem quality and stuff]
 
