@@ -105,7 +105,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         print '\n'
 
         # Print part of speech visualization info
-        visualize( O_Mat, tokens)
+        #visualize( O_Mat, tokens)
 
         # Prompt to generate more poems
         user_input = raw_input('Generate a another poem? [y/n]')
