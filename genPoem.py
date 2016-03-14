@@ -114,7 +114,6 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
 
 def genFromFile(f, rhyme):
     data = open(f)
-    d
     isO = False
     hasStart = False
     S_Mat = None
@@ -184,12 +183,8 @@ def genFromFile(f, rhyme):
         rhyme2 = rhymingDict("spenser.txt")
         rhyme = rhyme1 + rhyme2
         rhymeLim = rhymeDictLim(tokens, rhyme)
-        poem = rhymeGen(A_Mat, O_Mat, tokens, rhymeLim)
-        # Now print the poem.
-        for line in poem:
-            print ' '.join(line)
-        print '\n'
-        visualize(O_Mat, tokens)
+        rhymeGen(A_Mat, O_Mat, tokens, rhymeLim)
+        
 
 def main():
     ''' Run this program from the command to generate a poem from an HMM 
