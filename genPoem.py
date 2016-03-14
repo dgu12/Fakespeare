@@ -105,11 +105,7 @@ def hmmGenerate(A_Mat, O_Mat, tokens, startP = None):
         print '\n'
 
         # Print part of speech visualization info
-        visualize("noun", O_Mat, tokens)
-        print '\n'
-        visualize("verb", O_Mat, tokens)
-        print '\n'
-        visualize("article", O_Mat, tokens)
+        visualize( O_Mat, tokens)
 
         # Prompt to generate more poems
         user_input = raw_input('Generate a another poem? [y/n]')
@@ -191,6 +187,7 @@ def genFromFile(f, rhyme):
         for line in poem:
             print ' '.join(line)
         print '\n'
+        visualize(O_Mat, tokens)
 
 def main():
     ''' Run this program from the command to generate a poem from an HMM 
